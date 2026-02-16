@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vibe3DScene</title>
+    <meta
+      name="description"
+      content="Vibe3DScene official website. Prompt-driven 3D scene creation with headless deployment and web-native generation."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:wght@400;600;700&family=Roboto+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafd;
+        --bg-tertiary: #f2f5f9;
+        --text-primary: #111827;
+        --text-secondary: #374151;
+        --text-muted: #6b7280;
+        --accent-primary: #003262;
+        --accent-secondary: #002147;
+        --accent-soft: rgba(0, 50, 98, 0.08);
+        --border-soft: rgba(15, 23, 42, 0.09);
+        --border-strong: rgba(15, 23, 42, 0.16);
+        --card-bg: rgba(255, 255, 255, 0.95);
+        --shadow-soft: 0 10px 28px rgba(15, 23, 42, 0.08);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        background: var(--bg-primary);
+        background-image:
+          linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+          radial-gradient(circle at 85% 8%, rgba(0, 50, 98, 0.08), transparent 34%);
+        background-size:
+          22px 22px,
+          22px 22px,
+          auto;
+        color: var(--text-primary);
+        line-height: 1.65;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      .container {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0 22px;
+      }
+
+      .hero {
+        padding: 56px 0 24px;
+        text-align: center;
+      }
+
+      .badge {
+        display: inline-block;
+        background: #f2f4f7;
+        color: #4b5563;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .title {
+        margin-top: 14px;
+        font-family: "Source Serif 4", Georgia, serif;
+        font-size: clamp(2.2rem, 5.8vw, 4rem);
+        font-weight: 600;
+        letter-spacing: -0.025em;
+        line-height: 1.08;
+      }
+
+      .subtitle {
+        max-width: 840px;
+        margin: 14px auto 0;
+        color: var(--text-muted);
+        font-size: clamp(1rem, 2.3vw, 1.16rem);
+      }
+
+      .quick-links {
+        margin-top: 24px;
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .quick-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-width: 230px;
+        padding: 12px 18px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        border: 1px solid transparent;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      }
+
+      .quick-link.primary {
+        background: var(--accent-primary);
+        color: #ffffff;
+        box-shadow: 0 8px 20px rgba(0, 50, 98, 0.2);
+      }
+
+      .quick-link.primary:hover {
+        background: var(--accent-secondary);
+        transform: translateY(-2px);
+      }
+
+      .quick-link.secondary {
+        background: #ffffff;
+        color: #1f2937;
+        border-color: #d1d5db;
+      }
+
+      .quick-link.secondary:hover {
+        background: #f9fafb;
+        transform: translateY(-2px);
+      }
+
+      .quick-link code {
+        font-family: "Roboto Mono", monospace;
+        font-size: 0.72rem;
+        font-weight: 500;
+        opacity: 0.82;
+      }
+
+      .hero-demo {
+        margin-top: 22px;
+        border-radius: 16px;
+        border: 1px solid var(--border-soft);
+        background: var(--bg-secondary);
+        box-shadow: var(--shadow-soft);
+        overflow: hidden;
+      }
+
+      .hero-demo img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+      }
+
+      .section {
+        padding: 36px 0 0;
+      }
+
+      .section-header {
+        text-align: center;
+        max-width: 860px;
+        margin: 0 auto 16px;
+      }
+
+      .section-tag {
+        display: inline-block;
+        margin-bottom: 10px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: var(--accent-primary);
+        background: var(--accent-soft);
+        border: 1px solid rgba(0, 50, 98, 0.2);
+        border-radius: 999px;
+        padding: 4px 10px;
+      }
+
+      .section-title {
+        font-family: "Source Serif 4", Georgia, serif;
+        font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+        font-weight: 600;
+        letter-spacing: -0.015em;
+        line-height: 1.2;
+      }
+
+      .section-desc {
+        margin-top: 10px;
+        color: var(--text-secondary);
+        font-size: 1rem;
+      }
+
+      .card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-soft);
+        border-radius: 16px;
+        box-shadow: var(--shadow-soft);
+        padding: 16px;
+      }
+
+      .text-card p {
+        color: var(--text-secondary);
+        font-size: 1.03rem;
+      }
+
+      .media-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .media-item {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-strong);
+        background: var(--bg-tertiary);
+      }
+
+      .media-item img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+      }
+
+      .single-media {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-strong);
+        background: var(--bg-tertiary);
+      }
+
+      .single-media img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+      }
+
+      .architecture-wrap {
+        border: 1px solid var(--border-strong);
+        border-radius: 12px;
+        background: #ffffff;
+        padding: 12px;
+        overflow-x: auto;
+      }
+
+      .architecture-card + .architecture-card {
+        margin-top: 12px;
+      }
+
+      .architecture-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #1f2937;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+
+      .mermaid {
+        min-width: 980px;
+      }
+
+      .footnote {
+        margin-top: 10px;
+        font-size: 0.84rem;
+        color: var(--text-muted);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.92rem;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--border-soft);
+        text-align: left;
+        vertical-align: top;
+        padding: 11px 12px;
+      }
+
+      th {
+        background: #f6f8fb;
+        font-size: 0.84rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      td code {
+        font-family: "Roboto Mono", monospace;
+        font-size: 0.75rem;
+        line-height: 1.65;
+      }
+
+      .spacer {
+        height: 38px;
+      }
+
+      .scroll-animate {
+        opacity: 0;
+        transform: translateY(18px);
+        transition: opacity 0.55s ease, transform 0.55s ease;
+      }
+
+      .scroll-animate.in-view {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (max-width: 900px) {
+        .container {
+          padding: 0 14px;
+        }
+
+        .hero {
+          padding: 40px 0 18px;
+        }
+
+        .quick-link {
+          min-width: 100%;
+        }
+
+        .media-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .section {
+          padding-top: 26px;
+        }
+
+        .mermaid {
+          min-width: 760px;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .title {
+          font-size: clamp(2rem, 10vw, 2.8rem);
+        }
+
+        .subtitle {
+          font-size: 0.96rem;
+        }
+
+        .card {
+          padding: 12px;
+          border-radius: 12px;
+        }
+
+        .mermaid {
+          min-width: 640px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <div class="container">
+          <div class="scroll-animate">
+            <!-- <span class="badge">Official Website</span> -->
+            <h1 class="title">Vibe3DScene</h1>
+            <p class="subtitle">Create Your Own 3D Scene with Words.</p>
+          </div>
+
+          <div class="quick-links scroll-animate">
+            <a class="quick-link primary" href="https://github.com/3DSceneAgent/Vibe3DScene" target="_blank" rel="noopener noreferrer">
+              GitHub Project
+              <!-- <code>placeholder</code> -->
+            </a>
+            <a class="quick-link secondary" href="https://tbd" target="_blank" rel="noopener noreferrer">
+              Web Demo
+              <!-- <code>placeholder</code> -->
+            </a>
+          </div>
+
+          <div class="hero-demo scroll-animate">
+            <img
+              src="https://dummyimage.com/1600x900/0f172a/9cecff.gif&text=Core+GIF+Demo+Placeholder"
+              alt="Core GIF demo placeholder"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="card text-card scroll-animate">
+            <p>
+              Vibe3DScene turns natural language into structured 3D production. It supports headless deployment for
+              scalable backend execution and web-native scene generation for fast interactive iteration. Scene control,
+              retrieval, generation, and rendering are unified under one agentic runtime.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-header scroll-animate">
+            <span class="section-tag">Use Case 1</span>
+            <h2 class="section-title">Headless Backend + Web Builder</h2>
+            <p class="section-desc">
+              Deploy Vibe3DScene as a backend service and generate complete 3D scenes directly from the web interface.
+            </p>
+          </div>
+          <div class="card scroll-animate">
+            <div class="media-grid">
+              <div class="media-item">
+                <img
+                  src="https://dummyimage.com/1200x675/111827/9cecff.gif&text=Use+Case+1+GIF+Placeholder+01"
+                  alt="Use case 1 GIF placeholder 1"
+                  loading="lazy"
+                />
+              </div>
+              <div class="media-item">
+                <img
+                  src="https://dummyimage.com/1200x675/17263a/9cecff.gif&text=Use+Case+1+GIF+Placeholder+02"
+                  alt="Use case 1 GIF placeholder 2"
+                  loading="lazy"
+                />
+              </div>
+              <div class="media-item">
+                <img
+                  src="https://dummyimage.com/1200x675/1f324a/9cecff.gif&text=Use+Case+1+GIF+Placeholder+03"
+                  alt="Use case 1 GIF placeholder 3"
+                  loading="lazy"
+                />
+              </div>
+              <div class="media-item">
+                <img
+                  src="https://dummyimage.com/1200x675/26405d/9cecff.gif&text=Use+Case+1+GIF+Placeholder+04"
+                  alt="Use case 1 GIF placeholder 4"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-header scroll-animate">
+            <span class="section-tag">Use Case 2</span>
+            <h2 class="section-title">Blender Built-in Chat Generation</h2>
+            <p class="section-desc">
+              Create and refine scenes from inside Blender through integrated chat, while tool orchestration remains
+              automatic in the background.
+            </p>
+          </div>
+          <div class="card scroll-animate">
+            <div class="single-media">
+              <img
+                src="https://dummyimage.com/1600x900/13253d/9cecff.gif&text=Use+Case+2+GIF+Placeholder"
+                alt="Use case 2 GIF placeholder"
+                loading="lazy"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-header scroll-animate">
+            <span class="section-tag">Use Case 3</span>
+            <h2 class="section-title">Blender + Cursor</h2>
+            <p class="section-desc">
+              Use Blender with Cursor-style coding workflows for rapid prompt-to-code-to-scene loops across roles.
+            </p>
+          </div>
+          <div class="card scroll-animate">
+            <div class="single-media">
+              <img
+                src="https://dummyimage.com/1600x900/17304f/9cecff.gif&text=Use+Case+3+GIF+Placeholder"
+                alt="Use case 3 GIF placeholder"
+                loading="lazy"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-header scroll-animate">
+            <span class="section-tag">Architecture</span>
+            <h2 class="section-title">Core System Topology</h2>
+          </div>
+          <div class="card scroll-animate architecture-card">
+            <h3 class="architecture-title">Runtime Orchestration</h3>
+            <div class="architecture-wrap">
+              <pre class="mermaid">
+flowchart LR
+    subgraph ENTRY["Entry Layer"]
+        WEB["Web UI"]
+        CLI["CLI"]
+        BCHAT["Blender Chat"]
+    end
+
+    subgraph APIAPP["API + Agent Layer"]
+        API["FastAPI Interface"]
+        AGENT["LangGraph Agent Runtime"]
+        SC["Session Coordinator"]
+        OWN["Owner Proxy"]
+        MEM["Session Memory / Persistence"]
+        REDIS["Redis Registry (Optional)"]
+    end
+
+    subgraph EXEC["Execution Layer"]
+        MODE{"BLENDER_MODE"}
+        HM["Headless Manager"]
+        HBL["Headless Blender Instances"]
+        LMCP["Per-session MCP Runtime"]
+        LCL["Local Addon Socket"]
+    end
+
+    subgraph OUTL["Output Layer"]
+        OUT["Scene / Render / Asset Outputs"]
+    end
+
+    WEB --> API
+    CLI --> API
+    BCHAT --> API
+
+    API --> AGENT
+    API --> SC
+    SC --> OWN
+    AGENT --> MEM
+    SC -.-> REDIS
+
+    SC --> MODE
+    MODE -->|headless| HM
+    HM --> HBL
+    HM --> LMCP
+    MODE -->|local-client| LCL
+
+    AGENT --> LMCP
+    AGENT --> LCL
+    LMCP --> HBL
+
+    HBL --> OUT["Scene / Render / Asset Outputs"]
+    LCL --> OUT
+    OUT --> API
+              </pre>
+            </div>
+            <p class="footnote">Execution flow from entry points to session routing and final outputs.</p>
+          </div>
+          <div class="card scroll-animate architecture-card">
+            <h3 class="architecture-title">Tool and Service Topology</h3>
+            <div class="architecture-wrap">
+              <pre class="mermaid">
+flowchart TB
+    subgraph MCP["MCP Tool Runtime"]
+        STRAT["Tool Strategy Router"]
+        CORE["Scene / Camera / Render Tools"]
+        RET["Retrieval Tools"]
+        GEN["3D Generation Tools"]
+        PCG["PCG Tools"]
+        MEMT["Memory Tools"]
+    end
+
+    subgraph EXEC["Blender Targets"]
+        HBL["Headless Blender Instances"]
+        LCL["Local Blender Addon Socket"]
+    end
+
+    subgraph SERVICES["External Services"]
+        TR["TRELLIS2"]
+        AR["AssetRetrieval3D API"]
+        PH["PolyHaven"]
+        SK["Sketchfab API"]
+        RDN["Hyper3D Rodin API"]
+        HY["Hunyuan3D API"]
+        INF["PCGIntegrator3D"]
+        PG["PostgreSQL"]
+    end
+
+    STRAT --> CORE
+    STRAT --> RET
+    STRAT --> GEN
+    STRAT --> PCG
+    STRAT --> MEMT
+
+    CORE --> HBL
+    CORE --> LCL
+    MEMT --> HBL
+    MEMT --> LCL
+
+    RET --> AR
+    RET --> PH
+    RET --> SK
+    GEN --> TR
+    GEN --> RDN
+    GEN --> HY
+    PCG --> INF
+
+    AR --> PG
+
+    AR --> HBL
+    AR --> LCL
+    TR --> HBL
+    RDN --> HBL
+    RDN --> LCL
+    HY --> HBL
+    INF --> HBL
+              </pre>
+            </div>
+            <p class="footnote">Tool categories mapped to concrete service dependencies and Blender execution targets.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-header scroll-animate">
+            <span class="section-tag">Tooling</span>
+            <h2 class="section-title">Supported Tools</h2>
+          </div>
+          <div class="card scroll-animate">
+            <table>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Concrete Implementations</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Scene Inspection and Control</td>
+                  <td>
+                    <code>get_scene_info</code>, <code>get_object_info</code>, <code>get_viewport_screenshot</code>,
+                    <code>execute_blender_code</code>, <code>import_glb_model</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Camera and Rendering</td>
+                  <td>
+                    <code>render_from_objects</code>, <code>render_from_camera</code>, <code>camera_observe</code>,
+                    <code>camera_act</code>, <code>camera_set_pose</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Session Persistence</td>
+                  <td><code>undo_last_snapshot</code>, <code>get_session_persistence_status</code></td>
+                </tr>
+                <tr>
+                  <td>Asset Retrieval</td>
+                  <td>
+                    <code>search_polyhaven_assets</code>, <code>download_polyhaven_asset</code>, <code>set_texture</code>,
+                    <code>search_3d_assets_by_text</code>, <code>import_retrieved_asset</code>,
+                    <code>search_sketchfab_models</code>, <code>get_sketchfab_model_preview</code>,
+                    <code>download_sketchfab_model</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>3D Generation</td>
+                  <td>
+                    <code>generate_trellis2_model</code>, <code>generate_hyper3d_model_via_text</code>,
+                    <code>generate_hyper3d_model_via_images</code>, <code>poll_rodin_job_status</code>,
+                    <code>import_generated_asset</code>, <code>generate_hunyuan3d_model</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>PCG</td>
+                  <td><code>get_infinigen_available_assets</code>, <code>generate_infinigen_assets</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <div class="spacer"></div>
+    </main>
+
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: "base",
+        themeVariables: {
+          primaryColor: "#edf4fb",
+          primaryBorderColor: "#9ab6d3",
+          primaryTextColor: "#111827",
+          secondaryColor: "#f8fafc",
+          tertiaryColor: "#eef2f7",
+          lineColor: "#334155",
+          fontFamily: "Inter, sans-serif",
+        },
+        flowchart: {
+          curve: "bumpX",
+          nodeSpacing: 38,
+          rankSpacing: 42,
+        },
+      });
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("in-view");
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.12 }
+      );
+
+      document.querySelectorAll(".scroll-animate").forEach((el) => observer.observe(el));
+    </script>
+  </body>
+</html>
