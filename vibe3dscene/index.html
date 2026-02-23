@@ -167,6 +167,13 @@
         object-fit: cover;
       }
 
+      .hero-demo iframe {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border: 0;
+      }
+
       .section {
         padding: 36px 0 0;
       }
@@ -218,6 +225,38 @@
         font-size: 1.03rem;
       }
 
+      .summary-list {
+        list-style: none;
+        display: grid;
+        gap: 10px;
+        padding: 16px 18px;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 50, 98, 0.12);
+        border-left: 4px solid var(--accent-primary);
+        background: linear-gradient(135deg, rgba(0, 50, 98, 0.05), rgba(255, 255, 255, 0.92));
+      }
+
+      .summary-list li {
+        position: relative;
+        color: var(--text-secondary);
+        font-size: 1rem;
+        line-height: 1.72;
+        padding-left: 18px;
+      }
+
+      .summary-list li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        top: 0;
+        color: var(--accent-primary);
+        font-weight: 700;
+      }
+
+      .summary-list li strong {
+        color: #0f2942;
+      }
+
       .media-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -225,6 +264,8 @@
       }
 
       .media-item {
+        display: flex;
+        flex-direction: column;
         border-radius: 12px;
         overflow: hidden;
         border: 1px solid var(--border-strong);
@@ -250,6 +291,37 @@
         width: 100%;
         aspect-ratio: 16 / 9;
         object-fit: cover;
+      }
+
+      .png-grid {
+        margin-top: 10px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .png-item {
+        display: flex;
+        flex-direction: column;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-strong);
+        background: var(--bg-tertiary);
+      }
+
+      .png-item img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+      }
+
+      .media-title {
+        padding: 8px 10px 10px;
+        font-size: 0.84rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        background: #ffffff;
       }
 
       .architecture-wrap {
@@ -379,7 +451,7 @@
           <div class="scroll-animate">
             <!-- <span class="badge">Official Website</span> -->
             <h1 class="title">Vibe3DScene</h1>
-            <p class="subtitle">Create Your Own 3D Scene with Words.</p>
+            <p class="subtitle">Create Your Own 3D Scene with Words Anywhere.</p>
           </div>
 
           <div class="quick-links scroll-animate">
@@ -394,11 +466,13 @@
           </div>
 
           <div class="hero-demo scroll-animate">
-            <img
-              src="https://dummyimage.com/1600x900/0f172a/9cecff.gif&text=Core+GIF+Demo+Placeholder"
-              alt="Core GIF demo placeholder"
+            <iframe
+              src="https://www.youtube.com/embed/b2nP_OLbf8Y"
+              title="Vibe3DScene YouTube Demo"
               loading="lazy"
-            />
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+            ></iframe>
           </div>
         </div>
       </section>
@@ -406,11 +480,23 @@
       <section class="section">
         <div class="container">
           <div class="card text-card scroll-animate">
-            <p>
-              Vibe3DScene turns natural language into structured 3D production. It supports headless deployment for
-              scalable backend execution and web-native scene generation for fast interactive iteration. Scene control,
-              retrieval, generation, and rendering are unified under one agentic runtime.
-            </p>
+            <ul class="summary-list">
+              <li>
+                From the perspective of algoirthm, at the core of Vibe3DScene is a vision-aware single agent system
+                which follows the <strong>render-and-verify</strong> strategy to build scenes. (1) It's built with
+                LangGraph, borrowing some best practices of coding agents like tool call/planning/todos/rollback/memory
+                management. (2) It unifies MCP tools like multimodal understanding, camera control, 3D asset
+                retrieval/AIGC-Generation/PCG and scene management. The architecture is scalable and you can easily add
+                your own tools/tool servers.
+              </li>
+              <li>
+                From the perspective of engineering, Vibe3DScene runs Blender in headless backend mode over network
+                communication, so users can build scenes <strong>via chat from web/mobile/Blender-builtin clients,
+                without relying on a local Blender GUI or CC/Cursor IDE</strong>. Beyond that, an owner-proxy + NGINX
+                architecture enable multi-process scaling on a single server.
+              </li>
+              <li>The design is modular and you can implement your own 3D agentic workflow.</li>
+            </ul>
           </div>
         </div>
       </section>
@@ -428,31 +514,53 @@
             <div class="media-grid">
               <div class="media-item">
                 <img
-                  src="https://dummyimage.com/1200x675/111827/9cecff.gif&text=Use+Case+1+GIF+Placeholder+01"
-                  alt="Use case 1 GIF placeholder 1"
+                  src="assets/web_demo1.gif"
+                  alt="Use case 1 web demo GIF 1"
                   loading="lazy"
                 />
+                <p class="media-title">Create a low poly scene in a dungeon, with a dragon guarding a pot of gold</p>
               </div>
               <div class="media-item">
                 <img
-                  src="https://dummyimage.com/1200x675/17263a/9cecff.gif&text=Use+Case+1+GIF+Placeholder+02"
-                  alt="Use case 1 GIF placeholder 2"
+                  src="assets/web_demo2.gif"
+                  alt="Use case 1 web demo GIF 2"
                   loading="lazy"
                 />
+                <p class="media-title">Create a small modern living room with a sofa, coffee table, floor lamp, rug, and TV stand. Keep realistic scale and clean layout.</p>
               </div>
-              <div class="media-item">
+            </div>
+            <div class="png-grid">
+              <div class="png-item">
                 <img
-                  src="https://dummyimage.com/1200x675/1f324a/9cecff.gif&text=Use+Case+1+GIF+Placeholder+03"
-                  alt="Use case 1 GIF placeholder 3"
+                  src="assets/image1.png"
+                  alt="Use case 1 image 1"
                   loading="lazy"
                 />
+                <p class="media-title">Example1</p>
               </div>
-              <div class="media-item">
+              <div class="png-item">
                 <img
-                  src="https://dummyimage.com/1200x675/26405d/9cecff.gif&text=Use+Case+1+GIF+Placeholder+04"
-                  alt="Use case 1 GIF placeholder 4"
+                  src="assets/image2.png"
+                  alt="Use case 1 image 2"
                   loading="lazy"
                 />
+                <p class="media-title">Example2</p>
+              </div>
+              <div class="png-item">
+                <img
+                  src="assets/image3.png"
+                  alt="Use case 1 image 3"
+                  loading="lazy"
+                />
+                <p class="media-title">Example3</p>
+              </div>
+              <div class="png-item">
+                <img
+                  src="assets/image4.png"
+                  alt="Use case 1 image 4"
+                  loading="lazy"
+                />
+                <p class="media-title">PCG Example</p>
               </div>
             </div>
           </div>
@@ -472,29 +580,8 @@
           <div class="card scroll-animate">
             <div class="single-media">
               <img
-                src="https://dummyimage.com/1600x900/13253d/9cecff.gif&text=Use+Case+2+GIF+Placeholder"
-                alt="Use case 2 GIF placeholder"
-                loading="lazy"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="container">
-          <div class="section-header scroll-animate">
-            <span class="section-tag">Use Case 3</span>
-            <h2 class="section-title">Blender + Cursor</h2>
-            <p class="section-desc">
-              Use Blender with Cursor-style coding workflows for rapid prompt-to-code-to-scene loops across roles.
-            </p>
-          </div>
-          <div class="card scroll-animate">
-            <div class="single-media">
-              <img
-                src="https://dummyimage.com/1600x900/17304f/9cecff.gif&text=Use+Case+3+GIF+Placeholder"
-                alt="Use case 3 GIF placeholder"
+                src="assets/blender_demo1.gif"
+                alt="Use case 2 blender demo GIF"
                 loading="lazy"
               />
             </div>
