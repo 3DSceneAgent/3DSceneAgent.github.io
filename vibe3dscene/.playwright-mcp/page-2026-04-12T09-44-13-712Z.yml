@@ -1,0 +1,370 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "Vibe3DScene" [ref=e4] [cursor=pointer]:
+        - /url: "#home"
+        - generic [ref=e6]: Vibe3DScene
+      - navigation [ref=e7]:
+        - link "Overview" [ref=e8] [cursor=pointer]:
+          - /url: "#overview"
+        - link "Showcase" [ref=e9] [cursor=pointer]:
+          - /url: "#gallery"
+        - link "Architecture" [ref=e10] [cursor=pointer]:
+          - /url: "#architecture"
+        - link "Workflow" [ref=e11] [cursor=pointer]:
+          - /url: "#workflow"
+        - link "Tools" [ref=e12] [cursor=pointer]:
+          - /url: "#tools"
+        - link "Changelog" [ref=e13] [cursor=pointer]:
+          - /url: "#changelog"
+  - main [ref=e14]:
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - generic [ref=e20]: Vision-Aware Scene Agent Platform
+        - heading "Build 3D scenes from web, mobile, CLI, or Blender-native chat" [level=1] [ref=e21]:
+          - text: Build 3D scenes
+          - generic [ref=e22]: from web, mobile, CLI, or Blender-native chat
+        - paragraph [ref=e23]: Vibe3DScene connects FastAPI, LangGraph, MCP tools, Blender runtimes, and external generation services into a single headless-first system. It supports direct execution, planner-driven scene construction, image-grounded editing, and multi-worker deployment without forcing users into a local Blender GUI.
+        - generic [ref=e24]:
+          - link "GitHub" [ref=e25] [cursor=pointer]:
+            - /url: https://github.com/3DSceneAgent/Vibe3DScene
+          - link "Web Demo" [ref=e26] [cursor=pointer]:
+            - /url: https://vibe3dscene.vercel.app
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - generic [ref=e29]: Runtime Modes
+            - generic [ref=e30]: Single-Agent / Dual-Agent
+          - generic [ref=e31]:
+            - generic [ref=e32]: Execution
+            - generic [ref=e33]: Headless or Local-Client Blender
+          - generic [ref=e34]:
+            - generic [ref=e35]: Key Control
+            - generic [ref=e36]: Router + Verify + Evaluator
+      - generic [ref=e37]:
+        - iframe [ref=e39]:
+          - generic [active] [ref=f3e1]:
+            - generic "YouTube 视频播放器" [ref=f3e3]
+            - generic [ref=f3e5]:
+              - generic:
+                - generic:
+                  - button "播放视频" [ref=f3e10] [cursor=pointer]:
+                    - generic [ref=f3e13]:
+                      - img
+                  - button "隐藏播放器控件" [ref=f3e14] [cursor=pointer]
+                  - generic [ref=f3e16]:
+                    - generic [ref=f3e21]:
+                      - generic [ref=f3e22]:
+                        - 'link "Introducing Vibe3DScene v0.2: Create Your 3D Scene with Words Anywhere" [ref=f3e23] [cursor=pointer]':
+                          - /url: https://www.youtube.com/watch?v=rnZelKViTbk
+                        - link "王俊杰" [ref=f3e24] [cursor=pointer]:
+                          - /url: /channel/UCY0bGuDUiI-zCeC8nHOdn-Q
+                          - generic [ref=f3e25]: 王俊杰
+                      - generic [ref=f3e26]:
+                        - button "thumbnail-image" [ref=f3e27] [cursor=pointer]:
+                          - img "thumbnail-image" [ref=f3e28]
+                        - generic [ref=f3e30]:
+                          - generic: 王俊杰
+                          - generic: 7位订阅者
+                    - generic [ref=f3e31]:
+                      - button "分享" [ref=f3e34] [cursor=pointer]:
+                        - generic [ref=f3e38]:
+                          - img
+                      - link "在 YouTube 上观看" [ref=f3e45] [cursor=pointer]:
+                        - /url: https://www.youtube.com/watch?v=rnZelKViTbk
+                        - generic [ref=f3e48]:
+                          - text: 前往平台观看：
+                          - img [ref=f3e50]:
+                            - generic [ref=f3e52]:
+                              - img
+        - generic [ref=e40]:
+          - heading "What changed in the current runtime" [level=2] [ref=e41]
+          - list [ref=e42]:
+            - listitem [ref=e43]:
+              - strong [ref=e44]: Routing is explicit.
+              - generic [ref=e45]: "`fast_mode`, unfinished todos, and a lightweight router decide direct mode vs plan mode."
+            - listitem [ref=e46]:
+              - strong [ref=e47]: Verification is layered.
+              - generic [ref=e48]: Visual verification can be merged with geometry penetration checks before evaluator control.
+            - listitem [ref=e49]:
+              - strong [ref=e50]: Ownership is deployable.
+              - generic [ref=e51]: Redis-backed thread ownership and owner proxy make multi-worker execution practical.
+    - generic [ref=e53]:
+      - generic [ref=e54]:
+        - generic [ref=e55]:
+          - generic [ref=e56]: Overview
+          - heading "A layered runtime, not just a Blender bot" [level=2] [ref=e57]
+        - paragraph [ref=e58]: The current system separates entry surfaces, request orchestration, tool mediation, Blender execution, and persistence so the same core runtime can drive web generation, Blender-side chat, and service-oriented deployment.
+      - generic [ref=e60]:
+        - article [ref=e61]:
+          - heading "Runtime orchestration" [level=3] [ref=e62]
+          - paragraph [ref=e63]: FastAPI receives the request, resolves thread ownership and VLM configuration, then reuses or rebuilds the LangGraph instance for that thread before execution starts.
+        - article [ref=e64]:
+          - heading "Tool surface" [level=3] [ref=e65]
+          - paragraph [ref=e66]: MCP exposes the agent-callable tool registry while a small set of verification-only Blender commands remain internal to the graph for observation and geometry checks.
+        - article [ref=e67]:
+          - heading "Durability and recovery" [level=3] [ref=e68]
+          - paragraph [ref=e69]: "Redis ownership metadata, persisted `.blend` files, and stored image assets let sessions recover after restarts and keep long-running threads stable across workers."
+    - generic [ref=e71]:
+      - generic [ref=e72]:
+        - generic [ref=e73]:
+          - generic [ref=e74]: Showcase
+          - heading "Recent visuals from the current project assets" [level=2] [ref=e75]
+        - paragraph [ref=e76]: The homepage now uses the real image and GIF resources that exist in this repository instead of stale placeholder filenames.
+      - generic [ref=e77]:
+        - article [ref=e78]:
+          - img "Animated Golden Gate scene demo" [ref=e80]
+          - generic [ref=e81]:
+            - strong [ref=e82]: Web-native scene generation
+            - paragraph [ref=e83]: Headless runtime driving scene construction through a browser-facing workflow.
+        - article [ref=e84]:
+          - img "Animated house scene demo" [ref=e86]
+          - generic [ref=e87]:
+            - strong [ref=e88]: Prompt-to-scene iteration
+            - paragraph [ref=e89]: Short-loop scene editing and generation with visual feedback in the same runtime.
+        - article [ref=e90]:
+          - img "Sketch-conditioned house example" [ref=e92]
+          - generic [ref=e93]:
+            - strong [ref=e94]: Sketch and reference grounding
+            - paragraph [ref=e95]: Reference images can be persisted, routed by role, and rehydrated per request.
+        - article [ref=e96]:
+          - img "Blender chat generation demo" [ref=e98]
+          - generic [ref=e99]:
+            - strong [ref=e100]: Blender-integrated chat
+            - paragraph [ref=e101]: Agent orchestration remains automatic while the creation loop can still happen inside Blender.
+        - article [ref=e102]:
+          - img "Golden Gate scene image" [ref=e104]
+          - generic [ref=e105]:
+            - strong [ref=e106]: Large-scene composition
+            - paragraph [ref=e107]: Retrieval, generation, and camera-aware verification can be combined for bigger scene assembly tasks.
+        - article [ref=e108]:
+          - img "SAM3D interactive interface" [ref=e110]
+          - generic [ref=e111]:
+            - strong [ref=e112]: Interactive tool integrations
+            - paragraph [ref=e113]: New tool support now includes SAM3D-style reconstruction flows inside the broader runtime.
+        - article [ref=e114]:
+          - img "PCG result preview" [ref=e116]
+          - generic [ref=e117]:
+            - strong [ref=e118]: PCG and generation backends
+            - paragraph [ref=e119]: Procedural generation services can sit beside retrieval and model-generation tools in the same stack.
+    - generic [ref=e121]:
+      - generic [ref=e122]:
+        - generic [ref=e123]:
+          - generic [ref=e124]: Architecture
+          - heading "Updated from the current system documents" [level=2] [ref=e125]
+        - paragraph [ref=e126]:
+          - text: These diagrams are rebuilt from
+          - code [ref=e127]: docs/system-architecture.md
+          - text: and reflect the current runtime layers, ownership model, and placement of MCP versus external services.
+      - generic [ref=e128]:
+        - article [ref=e129]:
+          - generic [ref=e130]:
+            - heading "End-to-End Runtime Layers" [level=3] [ref=e131]
+            - generic [ref=e132]: Client -> API -> Graph -> MCP -> Blender / Services -> Storage
+          - document [ref=e135]:
+            - generic [ref=e145]:
+              - paragraph [ref=e152]: Web UI / CLI / Blender client
+              - paragraph [ref=e159]: FastAPI
+              - paragraph [ref=e166]: LangGraph runtime
+              - paragraph [ref=e173]: MCP server and tool registry
+              - paragraph [ref=e180]: Blender socket or headless Blender session
+              - paragraph [ref=e187]: External tool services
+              - paragraph [ref=e194]: Redis + persisted storage
+              - paragraph [ref=e201]: Scene / Render / Export
+        - article [ref=e202]:
+          - generic [ref=e203]:
+            - heading "Single-Worker vs Multi-Worker Ownership" [level=3] [ref=e204]
+            - generic [ref=e205]: Thread affinity is resolved at the application layer
+          - document [ref=e208]:
+            - generic [ref=e210]:
+              - generic [ref=e224]:
+                - paragraph [ref=e230]: "Yes"
+                - paragraph [ref=e236]: "No"
+                - paragraph [ref=e242]: "Yes"
+                - paragraph [ref=e248]: "No"
+              - generic [ref=e249]:
+                - paragraph [ref=e256]: Client
+                - paragraph [ref=e263]: Gateway / Nginx
+                - paragraph [ref=e270]: API Worker 1
+                - paragraph [ref=e277]: API Worker 2
+                - paragraph [ref=e284]: Redis control plane
+                - paragraph [ref=e291]: Owns thread?
+                - paragraph [ref=e298]: Owns thread?
+                - paragraph [ref=e305]: Execute locally
+                - paragraph [ref=e312]: Proxy to owner
+                - paragraph [ref=e319]: Execute locally
+                - paragraph [ref=e326]: Proxy to owner
+                - paragraph [ref=e333]: Headless session manager
+                - paragraph [ref=e340]: Headless session manager
+                - paragraph [ref=e347]: Shared session and image storage
+        - article [ref=e348]:
+          - generic [ref=e349]:
+            - heading "What lives in-repo vs out-of-repo" [level=3] [ref=e350]
+            - generic [ref=e351]: MCP stays close to the runtime; heavier services stay isolated
+          - document [ref=e354]:
+            - generic [ref=e356]:
+              - generic [ref=e357]:
+                - paragraph [ref=e364]: Sibling tool-service stack
+                - paragraph [ref=e371]: This repository
+              - generic [ref=e381]:
+                - paragraph [ref=e388]: FastAPI + runtime APIs
+                - paragraph [ref=e395]: LangGraph nodes
+                - paragraph [ref=e402]: MCP runtime + tool registry
+                - paragraph [ref=e409]: Blender-facing tools
+                - paragraph [ref=e416]: Runtime-only Blender checks
+                - paragraph [ref=e423]: TRELLIS2
+                - paragraph [ref=e430]: Retrieval backends
+                - paragraph [ref=e437]: SAM reconstruction
+                - paragraph [ref=e444]: SceneSmith compatibility APIs
+                - paragraph [ref=e451]: PCG services
+    - generic [ref=e453]:
+      - generic [ref=e454]:
+        - generic [ref=e455]:
+          - generic [ref=e456]: Workflow
+          - heading "Request flow, routing, verification, and convergence" [level=2] [ref=e457]
+        - paragraph [ref=e458]: The runtime graph no longer assumes every request needs planner-style decomposition. It initializes shared state first, then chooses direct or plan mode, and lets the evaluator own convergence.
+      - generic [ref=e459]:
+        - article [ref=e460]:
+          - generic [ref=e461]:
+            - heading "Request Entry and Graph Resolution" [level=3] [ref=e462]
+            - generic [ref=e463]: Thread-scoped graph caching and rebuild rules
+          - document [ref=e467]:
+            - generic [ref=e468]:
+              - generic [ref=e475]: Syntax error in text
+              - generic [ref=e476]: mermaid version 11.14.0
+        - article [ref=e477]:
+          - heading "Initialization chain" [level=3] [ref=e478]
+          - list [ref=e479]:
+            - listitem [ref=e480]:
+              - strong [ref=e481]: "`initialize_request`"
+              - text: "resolves workflow topology, memory profile, counters, and `fast_mode`."
+            - listitem [ref=e482]:
+              - strong [ref=e483]: "`sync_reference_catalog`"
+              - text: refreshes the compact thread-level image catalog from persisted assets.
+            - listitem [ref=e484]:
+              - strong [ref=e485]: "`prepare_reference_context`"
+              - text: computes the active image subset for this turn instead of replaying all history.
+            - listitem [ref=e486]:
+              - strong [ref=e487]: "`router`"
+              - text: "selects direct mode or plan mode, with `fast_mode=true` forcing direct execution."
+            - listitem [ref=e488]:
+              - strong [ref=e489]: "`plan_node`"
+              - text: only runs when planning is needed and seeds append-only todo history.
+        - article [ref=e490]:
+          - generic [ref=e491]:
+            - heading "Single-Agent Default Path" [level=3] [ref=e492]
+            - generic [ref=e493]: Tool execution, observation, verify, evaluator
+          - img [ref=e497]
+        - article [ref=e498]:
+          - heading "Current control rules" [level=3] [ref=e499]
+          - list [ref=e500]:
+            - listitem [ref=e501]: The evaluator owns todo state transitions and convergence for both single-agent and dual-agent topologies.
+            - listitem [ref=e502]: "`verify` can merge VLM-based judgment with an internal Blender penetration check when enabled."
+            - listitem [ref=e503]: "`fast_mode` skips the normal observe-and-verify cycle for latency-sensitive requests."
+            - listitem [ref=e504]: Streaming hides internal node chatter such as router, planner, verify, and evaluator tokens from the user-facing SSE stream.
+    - generic [ref=e506]:
+      - generic [ref=e507]:
+        - generic [ref=e508]:
+          - generic [ref=e509]: Tools
+          - heading "Supported tool surface in the current runtime" [level=2] [ref=e510]
+        - paragraph [ref=e511]: The list below is aligned to the current architecture and workflow docs, plus the latest project changelog. It focuses on what the runtime now exposes or coordinates in practice.
+      - generic [ref=e512]:
+        - article [ref=e513]:
+          - heading "Scene inspection and evidence" [level=3] [ref=e514]
+          - paragraph [ref=e515]: Observation tools provide the fresh evidence that the evaluator expects before a mutated scene can finalize.
+          - generic [ref=e516]:
+            - generic [ref=e517]: get_scene_info
+            - generic [ref=e518]: get_object_info
+            - generic [ref=e519]: observe_scene_global
+            - generic [ref=e520]: get_viewport_screenshot
+        - article [ref=e521]:
+          - heading "Camera, render, and verification" [level=3] [ref=e522]
+          - paragraph [ref=e523]: Camera-oriented tools support both normal observation loops and verification-time evidence gathering.
+          - generic [ref=e524]:
+            - generic [ref=e525]: camera_observe
+            - generic [ref=e526]: camera_act
+            - generic [ref=e527]: camera_set_pose
+            - generic [ref=e528]: render_from_camera
+            - generic [ref=e529]: render_from_objects
+        - article [ref=e530]:
+          - heading "Scene editing and runtime control" [level=3] [ref=e531]
+          - paragraph [ref=e532]: The runtime supports direct scene mutation, imported models, retries, rollback, and manual object edits.
+          - generic [ref=e533]:
+            - generic [ref=e534]: execute_blender_code
+            - generic [ref=e535]: import_glb_model
+            - generic [ref=e536]: undo_last_snapshot
+            - generic [ref=e537]: "@ object refs"
+            - generic [ref=e538]: primitive add
+            - generic [ref=e539]: transform / delete
+        - article [ref=e540]:
+          - heading "Retrieval backends" [level=3] [ref=e541]
+          - paragraph [ref=e542]: Retrieval tools can search, preview, and import scene assets or materials through external service adapters.
+          - generic [ref=e543]:
+            - generic [ref=e544]: HSSD retrieval
+            - generic [ref=e545]: AmbientCG materials
+            - generic [ref=e546]: SceneSmith APIs
+            - generic [ref=e547]: PolyHaven
+            - generic [ref=e548]: Sketchfab
+        - article [ref=e549]:
+          - heading "3D generation and reconstruction" [level=3] [ref=e550]
+          - paragraph [ref=e551]: The generation layer spans mesh synthesis, reconstruction, and imported generated assets.
+          - generic [ref=e552]:
+            - generic [ref=e553]: TRELLIS2
+            - generic [ref=e554]: Tripo3D
+            - generic [ref=e555]: SAM3D
+            - generic [ref=e556]: Hyper3D / Rodin
+            - generic [ref=e557]: Hunyuan3D
+        - article [ref=e558]:
+          - heading "Planning, memory, and topology hints" [level=3] [ref=e559]
+          - paragraph [ref=e560]: Request-scoped knobs decide how much planning, memory carryover, and verification the runtime should use.
+          - generic [ref=e561]:
+            - generic [ref=e562]: direct_mode
+            - generic [ref=e563]: plan_mode
+            - generic [ref=e564]: fast_mode
+            - generic [ref=e565]: single_agent
+            - generic [ref=e566]: dual_agent
+            - generic [ref=e567]: image bindings
+    - generic [ref=e569]:
+      - generic [ref=e570]:
+        - generic [ref=e571]:
+          - generic [ref=e572]: Changelog
+          - heading "What changed in v0.2.0" [level=2] [ref=e573]
+        - paragraph [ref=e574]: Added as a dedicated section on the homepage so visitors can see the latest runtime, model, tool, and UX shifts without opening the repository first.
+      - generic [ref=e575]:
+        - article [ref=e576]:
+          - generic [ref=e577]: v0.2.0 · 2026-04-12
+          - heading "Agent runtime and execution policy" [level=3] [ref=e578]
+          - list [ref=e579]:
+            - listitem [ref=e580]: Introduced routing and budgeting logic to decide when planning and verification are actually needed.
+            - listitem [ref=e581]: Improved image memory and automatic reference reuse across the workflow.
+            - listitem [ref=e582]: Added both single-agent and dual-agent topologies, with dual-agent still under active debugging.
+        - article [ref=e583]:
+          - generic [ref=e584]: Models and observability
+          - heading "Provider support is broader" [level=3] [ref=e585]
+          - list [ref=e586]:
+            - listitem [ref=e587]: Added Qwen support alongside Gemini as the main cost-performance model options.
+            - listitem [ref=e588]: Added end-to-end token usage display across the full workflow.
+        - article [ref=e589]:
+          - generic [ref=e590]: Editing and interaction
+          - heading "Scene control is more direct" [level=3] [ref=e591]
+          - list [ref=e592]:
+            - listitem [ref=e593]: Manual edits for vibe-generated objects now include transforms and deletion.
+            - listitem [ref=e594]: Users can add basic primitives and keep those edits synchronized back to Blender.
+            - listitem [ref=e595]:
+              - text: Object-specific edits can now be targeted via
+              - code [ref=e596]: "@"
+              - text: references.
+        - article [ref=e597]:
+          - generic [ref=e598]: Tools and frontend
+          - heading "Tooling and UI both moved forward" [level=3] [ref=e599]
+          - list [ref=e600]:
+            - listitem [ref=e601]: Added SAM3D, Tripo3D, HSSD retrieval, and AmbientCG material retrieval.
+            - listitem [ref=e602]: Improved code-execution robustness with validation and rollback.
+            - listitem [ref=e603]: Upgraded the frontend chat, lighting and rendering presentation, and separated scene persistence from runtime persistence.
+    - generic [ref=e605]:
+      - text: Built from the current repository assets and synced to
+      - code [ref=e606]: docs/system-architecture.md
+      - text: ","
+      - code [ref=e607]: docs/runtime-workflow.md
+      - text: ", and"
+      - code [ref=e608]: CHANGELOG.md
+      - text: .

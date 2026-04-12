@@ -1,0 +1,2 @@
+[    2795ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://127.0.0.1:4173/favicon.ico:0
+[   14701ms] [ERROR] Failed to load resource: net::ERR_SSL_PROTOCOL_ERROR @ https://jnn-pa.googleapis.com/$rpc/google.internal.waa.v1.Waa/GenerateIT:0

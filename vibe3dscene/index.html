@@ -3,783 +3,1466 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vibe3DScene</title>
+    <title>Vibe3DScene | Vision-Aware 3D Scene Runtime</title>
     <meta
       name="description"
-      content="Vibe3DScene official website. Prompt-driven 3D scene creation with headless deployment and web-native generation."
+      content="Vibe3DScene is a vision-aware 3D scene runtime that connects FastAPI, LangGraph, MCP tools, Blender, and external generation services into a web-native creative workflow."
     />
+    <link rel="icon" type="image/png" href="assets/vibe3dscene_icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:wght@400;600;700&family=Roboto+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
       rel="stylesheet"
     />
     <style>
       :root {
-        --bg-primary: #ffffff;
-        --bg-secondary: #f8fafd;
-        --bg-tertiary: #f2f5f9;
-        --text-primary: #111827;
-        --text-secondary: #374151;
-        --text-muted: #6b7280;
-        --accent-primary: #003262;
-        --accent-secondary: #002147;
-        --accent-soft: rgba(0, 50, 98, 0.08);
-        --border-soft: rgba(15, 23, 42, 0.09);
-        --border-strong: rgba(15, 23, 42, 0.16);
-        --card-bg: rgba(255, 255, 255, 0.95);
-        --shadow-soft: 0 10px 28px rgba(15, 23, 42, 0.08);
+        --bg: #09111f;
+        --bg-elevated: rgba(15, 25, 43, 0.78);
+        --bg-soft: rgba(17, 33, 58, 0.55);
+        --panel: rgba(10, 20, 38, 0.88);
+        --panel-strong: rgba(13, 24, 44, 0.96);
+        --line: rgba(138, 179, 255, 0.16);
+        --line-strong: rgba(138, 179, 255, 0.28);
+        --text: #edf4ff;
+        --text-soft: #b4c2dc;
+        --text-muted: #7f94b6;
+        --accent: #7be0ff;
+        --accent-strong: #57b8ff;
+        --accent-warm: #f2c879;
+        --success: #7ef2cb;
+        --shadow: 0 24px 70px rgba(0, 0, 0, 0.3);
+        --radius: 22px;
+        --content-width: 1220px;
+        --topbar-height: 76px;
       }
 
       * {
+        box-sizing: border-box;
         margin: 0;
         padding: 0;
-        box-sizing: border-box;
       }
 
       html {
         scroll-behavior: smooth;
       }
 
+      @keyframes bg-drift-1 {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        33%      { transform: translate(60px, -40px) scale(1.08); }
+        66%      { transform: translate(-30px, 30px) scale(0.95); }
+      }
+
+      @keyframes bg-drift-2 {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        50%      { transform: translate(-50px, 50px) scale(1.12); }
+      }
+
+      @keyframes bg-drift-3 {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        40%      { transform: translate(40px, 60px) scale(1.05); }
+        80%      { transform: translate(-20px, -30px) scale(0.96); }
+      }
+
       body {
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-        background: var(--bg-primary);
-        background-image:
-          linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px),
-          radial-gradient(circle at 85% 8%, rgba(0, 50, 98, 0.08), transparent 34%);
-        background-size:
-          22px 22px,
-          22px 22px,
-          auto;
-        color: var(--text-primary);
+        font-family: "Manrope", sans-serif;
+        color: var(--text);
+        background: #060d18;
+        min-height: 100vh;
         line-height: 1.65;
         overflow-x: hidden;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
       }
 
+      .bg-canvas {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .bg-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(100px);
+        will-change: transform;
+      }
+
+      .bg-orb--1 {
+        width: 700px;
+        height: 700px;
+        top: -18%;
+        left: -8%;
+        background: radial-gradient(circle, rgba(53, 100, 203, 0.35), transparent 70%);
+        animation: bg-drift-1 22s ease-in-out infinite;
+      }
+
+      .bg-orb--2 {
+        width: 550px;
+        height: 550px;
+        top: -5%;
+        right: -6%;
+        background: radial-gradient(circle, rgba(70, 198, 255, 0.28), transparent 70%);
+        animation: bg-drift-2 28s ease-in-out infinite;
+      }
+
+      .bg-orb--3 {
+        width: 600px;
+        height: 600px;
+        bottom: 8%;
+        left: 15%;
+        background: radial-gradient(circle, rgba(242, 200, 121, 0.16), transparent 70%);
+        animation: bg-drift-3 26s ease-in-out infinite;
+      }
+
+      .bg-orb--4 {
+        width: 400px;
+        height: 400px;
+        top: 40%;
+        right: 10%;
+        background: radial-gradient(circle, rgba(126, 242, 203, 0.1), transparent 70%);
+        animation: bg-drift-1 30s ease-in-out infinite reverse;
+      }
+
+      .bg-grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(129, 160, 214, 0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(129, 160, 214, 0.04) 1px, transparent 1px);
+        background-size: 32px 32px;
+        mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, transparent 70%);
+      }
+
+      .bg-vignette {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(ellipse 80% 60% at 50% 50%, transparent 40%, rgba(6, 13, 24, 0.7) 100%);
+      }
+
+      a {
+        color: inherit;
+      }
+
+      img {
+        display: block;
+        max-width: 100%;
+      }
+
       .container {
-        max-width: 1180px;
+        width: min(var(--content-width), calc(100vw - 40px));
         margin: 0 auto;
-        padding: 0 22px;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        backdrop-filter: blur(20px) saturate(1.4);
+        -webkit-backdrop-filter: blur(20px) saturate(1.4);
+        background: rgba(6, 13, 24, 0.65);
+        border-bottom: 1px solid rgba(123, 224, 255, 0.08);
+      }
+
+      .topbar-inner {
+        min-height: var(--topbar-height);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+      }
+
+      .brand-icon {
+        width: 38px;
+        height: 38px;
+        object-fit: contain;
+        filter: drop-shadow(0 0 10px rgba(123, 224, 255, 0.4));
+        transition: filter 0.3s ease;
+      }
+
+      .brand:hover .brand-icon {
+        filter: drop-shadow(0 0 16px rgba(123, 224, 255, 0.6));
+      }
+
+      .brand-text {
+        font-family: "Sora", sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+      }
+
+      .nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+
+      .nav a {
+        text-decoration: none;
+        color: var(--text-soft);
+        border: 1px solid transparent;
+        border-radius: 999px;
+        padding: 9px 14px;
+        font-size: 0.92rem;
+        transition: 0.2s ease;
+      }
+
+      .nav a:hover,
+      .nav a.active {
+        color: var(--text);
+        border-color: rgba(123, 224, 255, 0.26);
+        background: rgba(123, 224, 255, 0.08);
+      }
+
+      main {
+        padding-bottom: 56px;
+      }
+
+      @keyframes hero-fade-up {
+        from { opacity: 0; transform: translateY(32px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes eyebrow-glow {
+        0%, 100% { box-shadow: 0 0 12px rgba(123, 224, 255, 0.12); }
+        50%      { box-shadow: 0 0 22px rgba(123, 224, 255, 0.28); }
       }
 
       .hero {
-        padding: 56px 0 24px;
-        text-align: center;
+        padding: 64px 0 36px;
       }
 
-      .badge {
-        display: inline-block;
-        background: #f2f4f7;
-        color: #4b5563;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 6px 12px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.04em;
+      .hero-shell {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(123, 224, 255, 0.12);
+        border-radius: 34px;
+        background:
+          radial-gradient(ellipse 60% 50% at 50% 0%, rgba(123, 224, 255, 0.08), transparent),
+          radial-gradient(circle at top right, rgba(123, 224, 255, 0.1), transparent 32%),
+          radial-gradient(circle at bottom left, rgba(242, 200, 121, 0.05), transparent 36%),
+          rgba(8, 16, 30, 0.72);
+        backdrop-filter: blur(24px) saturate(1.3);
+        -webkit-backdrop-filter: blur(24px) saturate(1.3);
+        box-shadow:
+          0 32px 80px rgba(0, 0, 0, 0.4),
+          0 0 0 1px rgba(123, 224, 255, 0.06) inset,
+          0 1px 0 rgba(255, 255, 255, 0.04) inset;
+        padding: 44px 34px;
+      }
+
+      @keyframes shimmer-line {
+        0%   { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+      }
+
+      .hero-shell::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 10%;
+        right: 10%;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(123, 224, 255, 0.4),
+          rgba(242, 200, 121, 0.3),
+          rgba(123, 224, 255, 0.4),
+          transparent
+        );
+        background-size: 200% 100%;
+        animation: shimmer-line 6s ease-in-out infinite;
+        pointer-events: none;
+      }
+
+      .hero-shell::after {
+        content: "";
+        position: absolute;
+        right: -80px;
+        top: -60px;
+        width: 340px;
+        height: 340px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(123, 224, 255, 0.1), transparent 68%);
+        pointer-events: none;
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 32px;
+        align-items: start;
+      }
+
+      .hero-copy {
+        max-width: 920px;
+        margin: 0 auto;
+        text-align: center;
+        animation: hero-fade-up 0.8s ease both;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid rgba(123, 224, 255, 0.22);
+        border-radius: 999px;
+        padding: 8px 16px;
+        color: var(--accent);
+        background: rgba(123, 224, 255, 0.06);
+        font-size: 0.82rem;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
+        animation: eyebrow-glow 4s ease-in-out infinite;
       }
 
       .title {
-        margin-top: 14px;
-        font-family: "Source Serif 4", Georgia, serif;
-        font-size: clamp(2.2rem, 5.8vw, 4rem);
-        font-weight: 600;
-        letter-spacing: -0.025em;
-        line-height: 1.08;
+        margin-top: 22px;
+        font-family: "Sora", sans-serif;
+        font-size: clamp(2.4rem, 5.8vw, 4.4rem);
+        line-height: 1.05;
+        letter-spacing: -0.05em;
+        background: linear-gradient(135deg, #ffffff 0%, var(--accent) 50%, var(--accent-warm) 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
       }
 
-      .subtitle {
-        max-width: 840px;
-        margin: 14px auto 0;
-        color: var(--text-muted);
-        font-size: clamp(1rem, 2.3vw, 1.16rem);
+      .title span {
+        display: block;
+        background: none;
+        -webkit-text-fill-color: var(--text-soft);
+        font-size: clamp(1rem, 2vw, 1.3rem);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-top: 18px;
       }
 
-      .quick-links {
+      .lede {
         margin-top: 24px;
-        display: flex;
-        gap: 12px;
-        justify-content: center;
-        flex-wrap: wrap;
+        max-width: 780px;
+        margin-left: auto;
+        margin-right: auto;
+        font-size: 1.1rem;
+        line-height: 1.75;
+        color: var(--text-soft);
       }
 
-      .quick-link {
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 14px;
+        margin-top: 34px;
+      }
+
+      .button {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        min-width: 230px;
-        padding: 12px 18px;
-        border-radius: 10px;
+        min-width: 176px;
+        min-height: 50px;
+        padding: 0 22px;
+        border-radius: 999px;
         text-decoration: none;
         font-weight: 600;
-        font-size: 0.95rem;
-        border: 1px solid transparent;
-        transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+        font-size: 0.96rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
       }
 
-      .quick-link.primary {
-        background: var(--accent-primary);
-        color: #ffffff;
-        box-shadow: 0 8px 20px rgba(0, 50, 98, 0.2);
+      .button.primary {
+        color: #06111c;
+        background: linear-gradient(135deg, var(--accent), #b6f3ff);
+        box-shadow: 0 4px 24px rgba(123, 224, 255, 0.25);
       }
 
-      .quick-link.primary:hover {
-        background: var(--accent-secondary);
+      .button.primary:hover {
+        box-shadow: 0 6px 32px rgba(123, 224, 255, 0.4);
+      }
+
+      .button.secondary {
+        color: var(--text);
+        border: 1px solid rgba(123, 224, 255, 0.22);
+        background: rgba(123, 224, 255, 0.06);
+        backdrop-filter: blur(6px);
+      }
+
+      .button.secondary:hover {
+        border-color: rgba(123, 224, 255, 0.4);
+        background: rgba(123, 224, 255, 0.1);
+      }
+
+      .button:hover {
         transform: translateY(-2px);
       }
 
-      .quick-link.secondary {
-        background: #ffffff;
-        color: #1f2937;
-        border-color: #d1d5db;
+      .hero-meta {
+        margin-top: 32px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
       }
 
-      .quick-link.secondary:hover {
-        background: #f9fafb;
-        transform: translateY(-2px);
+      .meta-card {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(10, 18, 33, 0.62);
+        padding: 18px;
+        transition: border-color 0.25s ease, background 0.25s ease;
       }
 
-      .quick-link code {
-        font-family: "Roboto Mono", monospace;
-        font-size: 0.72rem;
-        font-weight: 500;
-        opacity: 0.82;
+      .meta-card:hover {
+        border-color: var(--line-strong);
+        background: rgba(14, 24, 44, 0.72);
       }
 
-      .hero-demo {
-        margin-top: 22px;
-        border-radius: 16px;
-        border: 1px solid var(--border-soft);
-        background: var(--bg-secondary);
-        box-shadow: var(--shadow-soft);
-        overflow: hidden;
-      }
-
-      .hero-demo img {
-        display: block;
-        width: 100%;
-        aspect-ratio: 16 / 9;
-        object-fit: cover;
-      }
-
-      .hero-demo iframe {
-        display: block;
-        width: 100%;
-        aspect-ratio: 16 / 9;
-        border: 0;
-      }
-
-      .section {
-        padding: 36px 0 0;
-      }
-
-      .section-header {
-        text-align: center;
-        max-width: 860px;
-        margin: 0 auto 16px;
-      }
-
-      .section-tag {
-        display: inline-block;
-        margin-bottom: 10px;
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.09em;
+      .meta-label {
+        font-size: 0.76rem;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: var(--accent-primary);
-        background: var(--accent-soft);
-        border: 1px solid rgba(0, 50, 98, 0.2);
-        border-radius: 999px;
-        padding: 4px 10px;
-      }
-
-      .section-title {
-        font-family: "Source Serif 4", Georgia, serif;
-        font-size: clamp(1.6rem, 3.5vw, 2.2rem);
-        font-weight: 600;
-        letter-spacing: -0.015em;
-        line-height: 1.2;
-      }
-
-      .section-desc {
-        margin-top: 10px;
-        color: var(--text-secondary);
-        font-size: 1rem;
-      }
-
-      .card {
-        background: var(--card-bg);
-        border: 1px solid var(--border-soft);
-        border-radius: 16px;
-        box-shadow: var(--shadow-soft);
-        padding: 16px;
-      }
-
-      .text-card p {
-        color: var(--text-secondary);
-        font-size: 1.03rem;
-      }
-
-      .summary-list {
-        list-style: none;
-        display: grid;
-        gap: 10px;
-        padding: 16px 18px;
-        border-radius: 12px;
-        border: 1px solid rgba(0, 50, 98, 0.12);
-        border-left: 4px solid var(--accent-primary);
-        background: linear-gradient(135deg, rgba(0, 50, 98, 0.05), rgba(255, 255, 255, 0.92));
-      }
-
-      .summary-list li {
-        position: relative;
-        color: var(--text-secondary);
-        font-size: 1rem;
-        line-height: 1.72;
-        padding-left: 18px;
-      }
-
-      .summary-list li::before {
-        content: "•";
-        position: absolute;
-        left: 0;
-        top: 0;
-        color: var(--accent-primary);
-        font-weight: 700;
-      }
-
-      .summary-list li strong {
-        color: #0f2942;
-      }
-
-      .media-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-      }
-
-      .media-item {
-        display: flex;
-        flex-direction: column;
-        border-radius: 12px;
-        overflow: hidden;
-        border: 1px solid var(--border-strong);
-        background: var(--bg-tertiary);
-      }
-
-      .media-item img {
-        display: block;
-        width: 100%;
-        aspect-ratio: 16 / 9;
-        object-fit: cover;
-      }
-
-      .single-media {
-        border-radius: 12px;
-        overflow: hidden;
-        border: 1px solid var(--border-strong);
-        background: var(--bg-tertiary);
-      }
-
-      .single-media img {
-        display: block;
-        width: 100%;
-        aspect-ratio: 16 / 9;
-        object-fit: cover;
-      }
-
-      .png-grid {
-        margin-top: 10px;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-      }
-
-      .png-item {
-        display: flex;
-        flex-direction: column;
-        border-radius: 12px;
-        overflow: hidden;
-        border: 1px solid var(--border-strong);
-        background: var(--bg-tertiary);
-      }
-
-      .png-item img {
-        display: block;
-        width: 100%;
-        aspect-ratio: 16 / 9;
-        object-fit: cover;
-      }
-
-      .media-title {
-        padding: 8px 10px 10px;
-        font-size: 0.84rem;
-        font-weight: 600;
-        color: var(--text-secondary);
-        background: #ffffff;
-      }
-
-      .architecture-wrap {
-        border: 1px solid var(--border-strong);
-        border-radius: 12px;
-        background: #ffffff;
-        padding: 12px;
-        overflow-x: auto;
-      }
-
-      .architecture-card + .architecture-card {
-        margin-top: 12px;
-      }
-
-      .architecture-title {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #1f2937;
-        letter-spacing: 0.03em;
-        text-transform: uppercase;
-        margin-bottom: 10px;
-      }
-
-      .mermaid {
-        min-width: 980px;
-      }
-
-      .footnote {
-        margin-top: 10px;
-        font-size: 0.84rem;
         color: var(--text-muted);
       }
 
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.92rem;
-      }
-
-      th,
-      td {
-        border: 1px solid var(--border-soft);
-        text-align: left;
-        vertical-align: top;
-        padding: 11px 12px;
-      }
-
-      th {
-        background: #f6f8fb;
-        font-size: 0.84rem;
+      .meta-value {
+        margin-top: 8px;
+        font-family: "Sora", sans-serif;
+        font-size: 1.12rem;
         font-weight: 700;
-        letter-spacing: 0.04em;
+      }
+
+      .video-card,
+      .media-card,
+      .section-panel,
+      .tool-card,
+      .changelog-card {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .video-card {
+        overflow: hidden;
+        border-color: rgba(123, 224, 255, 0.12);
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .video-card:hover {
+        border-color: rgba(123, 224, 255, 0.24);
+        box-shadow: 0 8px 40px rgba(123, 224, 255, 0.08);
+      }
+
+      .video-card iframe {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border: 0;
+        display: block;
+      }
+
+      section {
+        scroll-margin-top: calc(var(--topbar-height) + 20px);
+      }
+
+      .section {
+        padding-top: 38px;
+      }
+
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        align-items: end;
+        margin-bottom: 18px;
+      }
+
+      .section-kicker {
+        color: var(--accent);
+        font-size: 0.8rem;
+        letter-spacing: 0.12em;
         text-transform: uppercase;
       }
 
-      td code {
-        font-family: "Roboto Mono", monospace;
-        font-size: 0.75rem;
-        line-height: 1.65;
+      .section-title {
+        margin-top: 8px;
+        font-family: "Sora", sans-serif;
+        font-size: clamp(1.7rem, 3.2vw, 2.5rem);
+        line-height: 1.08;
+        letter-spacing: -0.04em;
       }
 
-      .spacer {
-        height: 38px;
+      .section-desc {
+        max-width: 760px;
+        color: var(--text-soft);
       }
 
-      .scroll-animate {
+      .section-panel {
+        padding: 26px;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .summary-block {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 18px;
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .summary-block h3 {
+        font-family: "Sora", sans-serif;
+        font-size: 1rem;
+        margin-bottom: 10px;
+      }
+
+      .summary-block p {
+        color: var(--text-soft);
+        font-size: 0.97rem;
+      }
+
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .media-card {
+        overflow: hidden;
+      }
+
+      .media-card.wide {
+        grid-column: span 6;
+      }
+
+      .media-card.tall {
+        grid-column: span 6;
+      }
+
+      .media-card.quad {
+        grid-column: span 6;
+      }
+
+      .media-card.full {
+        grid-column: span 12;
+      }
+
+      .media-frame {
+        position: relative;
+        background: #07101c;
+      }
+
+      .media-frame img {
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        object-fit: cover;
+        opacity: 0.94;
+      }
+
+      .media-caption {
+        padding: 16px 18px 18px;
+      }
+
+      .media-caption strong {
+        display: block;
+        font-family: "Sora", sans-serif;
+        font-size: 0.98rem;
+        margin-bottom: 6px;
+      }
+
+      .media-caption p {
+        color: var(--text-soft);
+        font-size: 0.94rem;
+      }
+
+      .diagram-stack {
+        display: grid;
+        gap: 16px;
+      }
+
+      .diagram-card {
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        overflow: hidden;
+        background: rgba(6, 14, 27, 0.82);
+      }
+
+      .diagram-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        align-items: center;
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(123, 224, 255, 0.04);
+      }
+
+      .diagram-head h3 {
+        font-family: "Sora", sans-serif;
+        font-size: 1.02rem;
+      }
+
+      .diagram-head span {
+        color: var(--text-muted);
+        font-size: 0.88rem;
+      }
+
+      .diagram-head-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .diagram-expand {
+        appearance: none;
+        border: 1px solid rgba(123, 224, 255, 0.22);
+        background: rgba(123, 224, 255, 0.08);
+        color: var(--text);
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 0.82rem;
+        cursor: pointer;
+        transition: 0.18s ease;
+      }
+
+      .diagram-expand:hover {
+        background: rgba(123, 224, 255, 0.14);
+        border-color: rgba(123, 224, 255, 0.34);
+      }
+
+      .diagram-body {
+        padding: 14px;
+        overflow-x: auto;
+      }
+
+      .mermaid {
+        min-width: 920px;
+      }
+
+      .mermaid.workflow-wide {
+        min-width: 1160px;
+      }
+
+      .diagram-card:fullscreen {
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+        border-radius: 0;
+        background: #07101c;
+      }
+
+      .diagram-card:fullscreen .diagram-body {
+        height: calc(100vh - 72px);
+        padding: 20px;
+      }
+
+      .diagram-card:fullscreen .mermaid {
+        min-width: 1400px;
+      }
+
+      .workflow-grid,
+      .tools-grid,
+      .changelog-grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .workflow-grid {
+        grid-template-columns: 1.08fr 0.92fr;
+      }
+
+      .workflow-note,
+      .tool-card,
+      .changelog-card {
+        padding: 20px;
+      }
+
+      .workflow-note h3,
+      .tool-card h3,
+      .changelog-card h3 {
+        font-family: "Sora", sans-serif;
+        font-size: 1.04rem;
+        margin-bottom: 10px;
+      }
+
+      .workflow-note p,
+      .tool-card p,
+      .changelog-card p {
+        color: var(--text-soft);
+      }
+
+      .mini-list {
+        list-style: none;
+        display: grid;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .mini-list li {
+        padding-left: 16px;
+        position: relative;
+        color: var(--text-soft);
+      }
+
+      .mini-list li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.72em;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+
+      .tools-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .tool-card {
+        background:
+          linear-gradient(180deg, rgba(17, 31, 55, 0.88), rgba(10, 19, 36, 0.94));
+      }
+
+      .tool-chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .chip {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.76rem;
+        padding: 7px 10px;
+        border-radius: 999px;
+        color: var(--text);
+        background: rgba(123, 224, 255, 0.08);
+        border: 1px solid rgba(123, 224, 255, 0.16);
+      }
+
+      .changelog-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .changelog-card {
+        background:
+          linear-gradient(180deg, rgba(18, 33, 58, 0.9), rgba(9, 18, 34, 0.98));
+      }
+
+      .changelog-meta {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        border-radius: 999px;
+        background: rgba(242, 200, 121, 0.08);
+        border: 1px solid rgba(242, 200, 121, 0.18);
+        color: var(--accent-warm);
+        padding: 6px 12px;
+        margin-bottom: 14px;
+        font-size: 0.8rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .footer {
+        color: var(--text-muted);
+        font-size: 0.92rem;
+        padding: 28px 0 8px;
+      }
+
+      .reveal {
         opacity: 0;
-        transform: translateY(18px);
-        transition: opacity 0.55s ease, transform 0.55s ease;
+        transform: translateY(20px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
       }
 
-      .scroll-animate.in-view {
+      .reveal.in-view {
         opacity: 1;
         transform: translateY(0);
       }
 
-      @media (max-width: 900px) {
-        .container {
-          padding: 0 14px;
-        }
-
-        .hero {
-          padding: 40px 0 18px;
-        }
-
-        .quick-link {
-          min-width: 100%;
-        }
-
-        .media-grid {
+      @media (max-width: 1080px) {
+        .workflow-grid,
+        .summary-grid,
+        .tools-grid,
+        .changelog-grid {
           grid-template-columns: 1fr;
         }
 
-        .section {
-          padding-top: 26px;
+        .media-card.wide,
+        .media-card.tall,
+        .media-card.quad {
+          grid-column: span 12;
+        }
+      }
+
+      @media (max-width: 860px) {
+        :root {
+          --topbar-height: 98px;
+        }
+
+        .container {
+          width: min(var(--content-width), calc(100vw - 24px));
+        }
+
+        .topbar-inner,
+        .section-head {
+          align-items: start;
+          flex-direction: column;
+        }
+
+        .hero-shell,
+        .section-panel {
+          padding: 24px 20px;
+        }
+
+        .hero-meta {
+          grid-template-columns: 1fr;
+        }
+
+        .nav {
+          justify-content: flex-start;
         }
 
         .mermaid {
-          min-width: 760px;
+          min-width: 740px;
         }
       }
 
       @media (max-width: 560px) {
-        .title {
-          font-size: clamp(2rem, 10vw, 2.8rem);
+        body {
+          line-height: 1.58;
         }
 
-        .subtitle {
-          font-size: 0.96rem;
+        .hero {
+          padding-top: 28px;
         }
 
-        .card {
-          padding: 12px;
-          border-radius: 12px;
+        .hero-shell {
+          border-radius: 24px;
+          padding: 22px 16px;
+        }
+
+        .button {
+          width: 100%;
+        }
+
+        .gallery-grid {
+          gap: 14px;
         }
 
         .mermaid {
-          min-width: 640px;
+          min-width: 620px;
         }
       }
     </style>
   </head>
   <body>
+    <div class="bg-canvas" aria-hidden="true">
+      <div class="bg-orb bg-orb--1"></div>
+      <div class="bg-orb bg-orb--2"></div>
+      <div class="bg-orb bg-orb--3"></div>
+      <div class="bg-orb bg-orb--4"></div>
+      <div class="bg-grid"></div>
+      <div class="bg-vignette"></div>
+    </div>
+
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <a class="brand" href="#home">
+          <img class="brand-icon" src="assets/vibe3dscene_icon.png" alt="Vibe3DScene" />
+          <span class="brand-text">Vibe3DScene</span>
+        </a>
+        <nav class="nav">
+          <a href="#overview">Overview</a>
+          <a href="#gallery">Showcase</a>
+          <a href="#blender">Blender</a>
+          <a href="#architecture">Architecture</a>
+          <a href="#workflow">Workflow</a>
+          <a href="#tools">Tools</a>
+          <a href="#changelog">Changelog</a>
+        </nav>
+      </div>
+    </header>
+
     <main>
-      <section class="hero">
+      <section class="hero" id="home">
         <div class="container">
-          <div class="scroll-animate">
-            <!-- <span class="badge">Official Website</span> -->
-            <h1 class="title">Vibe3DScene</h1>
-            <p class="subtitle">Create Your Own 3D Scene with Words Anywhere.</p>
-          </div>
+          <div class="hero-shell reveal">
+            <div class="hero-grid">
+              <div class="hero-copy">
+                <div class="eyebrow">Vision-Aware 3D Agentic System for Scene Building</div>
+                <h1 class="title">
+                    Vibe3DScene: Create Your 3D Scene with Words
+                </h1>
+                <p class="lede">
+                  Vibe3DScene connects FastAPI, LangGraph, MCP tools, Blender runtimes, and external services
+                  into a single headless-first system. It supports direct execution, planner-driven scene construction, and multi-worker deployment without forcing users into a local Blender GUI.
+                </p>
+                <div class="hero-actions">
+                  <a
+                    class="button primary"
+                    href="https://github.com/3DSceneAgent/Vibe3DScene"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >GitHub</a
+                  >
+                  <a
+                    class="button secondary"
+                    href="https://vibe3dscene.vercel.app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >Web Demo</a
+                  >
+                </div>
+                <div class="hero-meta">
+                  <div class="meta-card">
+                    <div class="meta-label">Runtime Modes</div>
+                    <div class="meta-value">Single-Agent / Dual-Agent</div>
+                  </div>
+                  <div class="meta-card">
+                    <div class="meta-label">Execution</div>
+                    <div class="meta-value">Headless or Local Blender</div>
+                  </div>
+                  <div class="meta-card">
+                    <div class="meta-label">Key Control</div>
+                    <div class="meta-value">Router + Verify + Evaluator</div>
+                  </div>
+                </div>
+              </div>
 
-          <div class="quick-links scroll-animate">
-            <a class="quick-link primary" href="https://github.com/3DSceneAgent/Vibe3DScene" target="_blank" rel="noopener noreferrer">
-              GitHub
-              <!-- <code>placeholder</code> -->
-            </a>
-            <a class="quick-link secondary" href="https://vibe3dscene.vercel.app" target="_blank" rel="noopener noreferrer">
-              Web Demo
-              <!-- <code>placeholder</code> -->
-            </a>
-          </div>
-
-          <div class="hero-demo scroll-animate">
-            <iframe
-              src="https://www.youtube.com/embed/b2nP_OLbf8Y"
-              title="Vibe3DScene YouTube Demo"
-              loading="lazy"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowfullscreen
-            ></iframe>
+              <div class="video-card">
+                <iframe
+                  src="https://www.youtube.com/embed/rnZelKViTbk"
+                  title="Vibe3DScene YouTube Demo"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowfullscreen
+                ></iframe>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section class="section">
+      <section class="section" id="overview">
         <div class="container">
-          <div class="card text-card scroll-animate">
-            <ul class="summary-list">
-              <li>
-                From the perspective of algoirthm, at the core of Vibe3DScene is a vision-aware single agent system
-                which follows the <strong>render-and-verify</strong> strategy to build scenes. (1) It's built with
-                LangGraph, borrowing some best practices of coding agents like tool call/planning/todos/rollback/memory
-                management. (2) It unifies MCP tools like multimodal understanding, camera control, 3D asset
-                retrieval/AIGC-Generation/PCG and scene management. The architecture is scalable and you can easily add
-                your own tools/tool servers.
-              </li>
-              <li>
-                From the perspective of engineering, Vibe3DScene runs Blender in headless backend mode over network
-                communication, so users can build scenes <strong>via chat from web/mobile/Blender-builtin clients,
-                without relying on a local Blender GUI or CC/Cursor IDE</strong>. Beyond that, an owner-proxy + NGINX
-                architecture enable multi-process scaling on a single server.
-              </li>
-              <li>The design is modular and you can implement your own 3D agentic workflow.</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="container">
-          <div class="section-header scroll-animate">
-            <span class="section-tag">Use Case 1</span>
-            <h2 class="section-title">Headless Backend + Web Builder</h2>
+          <div class="section-head reveal">
+            <div>
+              <div class="section-kicker">Overview</div>
+              <h2 class="section-title">A layered runtime, not just a Blender bot</h2>
+            </div>
             <p class="section-desc">
-              Deploy Vibe3DScene as a backend service and generate complete 3D scenes directly from the web interface.
+              The current system separates entry surfaces, request orchestration, tool mediation, Blender execution, and
+              persistence so the same core runtime can drive web generation, Blender-side chat, and service-oriented
+              deployment.
             </p>
           </div>
-          <div class="card scroll-animate">
-            <div class="media-grid">
-              <div class="media-item">
-                <img
-                  src="assets/web_demo1.gif"
-                  alt="Use case 1 web demo GIF 1"
-                  loading="lazy"
-                />
-                <p class="media-title">Create a low poly scene in a dungeon, with a dragon guarding a pot of gold</p>
-              </div>
-              <div class="media-item">
-                <img
-                  src="assets/web_demo2.gif"
-                  alt="Use case 1 web demo GIF 2"
-                  loading="lazy"
-                />
-                <p class="media-title">Create a small modern living room with a sofa, coffee table, floor lamp, rug, and TV stand. Keep realistic scale and clean layout.</p>
-              </div>
-            </div>
-            <div class="png-grid">
-              <div class="png-item">
-                <img
-                  src="assets/image1.png"
-                  alt="Use case 1 image 1"
-                  loading="lazy"
-                />
-                <p class="media-title">Example1</p>
-              </div>
-              <div class="png-item">
-                <img
-                  src="assets/image2.png"
-                  alt="Use case 1 image 2"
-                  loading="lazy"
-                />
-                <p class="media-title">Example2</p>
-              </div>
-              <div class="png-item">
-                <img
-                  src="assets/image3.png"
-                  alt="Use case 1 image 3"
-                  loading="lazy"
-                />
-                <p class="media-title">Example3</p>
-              </div>
-              <div class="png-item">
-                <img
-                  src="assets/image4.png"
-                  alt="Use case 1 image 4"
-                  loading="lazy"
-                />
-                <p class="media-title">PCG Example</p>
-              </div>
+
+          <div class="section-panel reveal">
+            <div class="summary-grid">
+              <article class="summary-block">
+                <h3>Runtime orchestration</h3>
+                <p>
+                  FastAPI receives the request, resolves thread ownership and VLM configuration, then reuses or rebuilds
+                  the LangGraph instance for that thread before execution starts.
+                </p>
+              </article>
+              <article class="summary-block">
+                <h3>Tool surface</h3>
+                <p>
+                  MCP exposes the agent-callable tool registry while a small set of verification-only Blender commands
+                  remain internal to the graph for observation and geometry checks.
+                </p>
+              </article>
+              <article class="summary-block">
+                <h3>Durability and recovery</h3>
+                <p>
+                  Redis ownership metadata, persisted `.blend` files, and stored image assets let sessions recover after
+                  restarts and keep long-running threads stable across workers.
+                </p>
+              </article>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="section">
+      <section class="section" id="gallery">
         <div class="container">
-          <div class="section-header scroll-animate">
-            <span class="section-tag">Use Case 2</span>
-            <h2 class="section-title">Blender Built-in Chat Generation</h2>
+          <div class="section-head reveal">
+            <div>
+              <div class="section-kicker">Showcase</div>
+              <h2 class="section-title">Web and headless runtime visuals</h2>
+            </div>
             <p class="section-desc">
-              Create and refine scenes from inside Blender through integrated chat, while tool orchestration remains
-              automatic in the background.
+              Scene generation, image grounding, retrieval, and procedural workflows across the web-native runtime.
             </p>
           </div>
-          <div class="card scroll-animate">
-            <div class="single-media">
-              <img
-                src="assets/blender_demo1.gif"
-                alt="Use case 2 blender demo GIF"
-                loading="lazy"
-              />
-            </div>
+
+          <div class="gallery-grid reveal">
+            <article class="media-card wide">
+              <div class="media-frame">
+                <img src="assets/videos/golden_gate.gif" alt="Animated Golden Gate scene demo" loading="lazy" />
+              </div>
+              <div class="media-caption">
+                <strong>Web-native scene generation</strong>
+                <p>Headless runtime driving scene construction through a browser-facing workflow.</p>
+              </div>
+            </article>
+
+            <article class="media-card tall">
+              <div class="media-frame">
+                <img src="assets/videos/house.gif" alt="Animated house scene demo" loading="lazy" />
+              </div>
+              <div class="media-caption">
+                <strong>Prompt-to-scene iteration</strong>
+                <p>Short-loop scene editing and generation with visual feedback in the same runtime.</p>
+              </div>
+            </article>
+
+            <article class="media-card quad">
+              <div class="media-frame">
+                <img src="assets/images/sketch_house.png" alt="Sketch-conditioned house example" loading="lazy" />
+              </div>
+              <div class="media-caption">
+                <strong>Sketch and reference grounding</strong>
+                <p>Reference images can be persisted, routed by role, and rehydrated per request.</p>
+              </div>
+            </article>
+
+            <article class="media-card quad">
+              <div class="media-frame">
+                <img src="assets/images/golden_gate.png" alt="Golden Gate scene image" loading="lazy" />
+              </div>
+              <div class="media-caption">
+                <strong>Large-scene composition</strong>
+                <p>Retrieval, generation, and camera-aware verification can be combined for bigger scene assembly tasks.</p>
+              </div>
+            </article>
+
+            <article class="media-card quad">
+              <div class="media-frame">
+                <img src="assets/images/sam3d_interactive.png" alt="SAM3D interactive interface" loading="lazy" />
+              </div>
+              <div class="media-caption">
+                <strong>Interactive tool integrations</strong>
+                <p>New tool support now includes SAM3D-style reconstruction flows inside the broader runtime.</p>
+              </div>
+            </article>
+
+            <article class="media-card quad">
+              <div class="media-frame">
+                <img src="assets/images/pcg.png" alt="PCG result preview" loading="lazy" />
+              </div>
+              <div class="media-caption">
+                <strong>PCG and generation backends</strong>
+                <p>Procedural generation services can sit beside retrieval and model-generation tools in the same stack.</p>
+              </div>
+            </article>
           </div>
         </div>
       </section>
 
-      <section class="section">
+      <section class="section" id="blender">
         <div class="container">
-          <div class="section-header scroll-animate">
-            <span class="section-tag">Architecture</span>
-            <h2 class="section-title">Core System Topology</h2>
+          <div class="section-head reveal">
+            <div>
+              <div class="section-kicker">Blender</div>
+              <h2 class="section-title">Blender-integrated chat generation</h2>
+            </div>
+            <p class="section-desc">
+              A Blender-native creation loop with the same agent runtime and tool orchestration behind it.
+            </p>
           </div>
-          <div class="card scroll-animate architecture-card">
-            <h3 class="architecture-title">Runtime Orchestration</h3>
-            <div class="architecture-wrap">
-              <pre class="mermaid">
+
+          <div class="gallery-grid reveal">
+            <article class="media-card full">
+              <div class="media-frame">
+                <img src="assets/videos/blender_demo.gif" alt="Blender chat generation demo" loading="lazy" />
+              </div>
+              <div class="media-caption">
+                <strong>Blender-side creation loop</strong>
+                <p>Agent orchestration remains automatic while the creation loop can still happen inside Blender.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="architecture">
+        <div class="container">
+          <div class="section-head reveal">
+            <div>
+              <div class="section-kicker">Architecture</div>
+              <h2 class="section-title">Platform architecture</h2>
+            </div>
+            <p class="section-desc">
+              How requests move through the platform, how sessions stay stable, and how core tooling connects to external services.
+            </p>
+          </div>
+
+          <div class="diagram-stack reveal">
+            <article class="diagram-card">
+              <div class="diagram-head">
+                <h3>End-to-End Runtime Layers</h3>
+                <span>Client -> API -> Graph -> MCP -> Blender / Services -> Storage</span>
+              </div>
+              <div class="diagram-body">
+                <pre class="mermaid">
 flowchart LR
-    subgraph ENTRY["Entry Layer"]
-        WEB["Web UI"]
-        CLI["CLI"]
-        BCHAT["Blender Chat"]
-    end
+    U[Web UI / CLI / Blender client] --> API[FastAPI]
+    API --> G[LangGraph runtime]
+    G --> MCP[MCP server and tool registry]
+    MCP --> B[Blender socket or headless Blender session]
+    MCP --> T[External tool services]
+    API --> S[(Redis + persisted storage)]
+    B --> O[Scene / Render / Export]
+    T --> O
+                </pre>
+              </div>
+            </article>
 
-    subgraph APIAPP["API + Agent Layer"]
-        API["FastAPI Interface"]
-        AGENT["LangGraph Agent Runtime"]
-        SC["Session Coordinator"]
-        OWN["Owner Proxy"]
-        MEM["Session Memory / Persistence"]
-        REDIS["Redis Registry (Optional)"]
-    end
+            <article class="diagram-card">
+              <div class="diagram-head">
+                <h3>Deployment and session routing</h3>
+                <span>Single-worker simplicity with multi-worker scaling when needed</span>
+              </div>
+              <div class="diagram-body">
+                <pre class="mermaid">
+flowchart LR
+    C[Client] --> GW[Gateway / Nginx]
+    GW --> W1[API Worker 1]
+    GW --> W2[API Worker 2]
+    W1 --> R[(Redis control plane)]
+    W2 --> R
+    W1 --> O1{Owns thread?}
+    W2 --> O2{Owns thread?}
+    O1 -->|Yes| E1[Execute locally]
+    O1 -->|No| P1[Proxy to owner]
+    O2 -->|Yes| E2[Execute locally]
+    O2 -->|No| P2[Proxy to owner]
+    E1 --> HS1[Headless session manager]
+    E2 --> HS2[Headless session manager]
+    HS1 --> FS[(Shared session and image storage)]
+    HS2 --> FS
+                </pre>
+              </div>
+            </article>
 
-    subgraph EXEC["Execution Layer"]
-        MODE{"BLENDER_MODE"}
-        HM["Headless Manager"]
-        HBL["Headless Blender Instances"]
-        LMCP["Per-session MCP Runtime"]
-        LCL["Local Addon Socket"]
-    end
-
-    subgraph OUTL["Output Layer"]
-        OUT["Scene / Render / Asset Outputs"]
-    end
-
-    WEB --> API
-    CLI --> API
-    BCHAT --> API
-
-    API --> AGENT
-    API --> SC
-    SC --> OWN
-    AGENT --> MEM
-    SC -.-> REDIS
-
-    SC --> MODE
-    MODE -->|headless| HM
-    HM --> HBL
-    HM --> LMCP
-    MODE -->|local-client| LCL
-
-    AGENT --> LMCP
-    AGENT --> LCL
-    LMCP --> HBL
-
-    HBL --> OUT["Scene / Render / Asset Outputs"]
-    LCL --> OUT
-    OUT --> API
-              </pre>
-            </div>
-            <p class="footnote">Execution flow from entry points to session routing and final outputs.</p>
-          </div>
-          <div class="card scroll-animate architecture-card">
-            <h3 class="architecture-title">Tool and Service Topology</h3>
-            <div class="architecture-wrap">
-              <pre class="mermaid">
+            <article class="diagram-card">
+              <div class="diagram-head">
+                <h3>Core runtime and connected services</h3>
+                <span>Core orchestration stays lightweight while heavier services remain modular</span>
+              </div>
+              <div class="diagram-body">
+                <pre class="mermaid">
 flowchart TB
-    subgraph MCP["MCP Tool Runtime"]
-        STRAT["Tool Strategy Router"]
-        CORE["Scene / Camera / Render Tools"]
-        RET["Retrieval Tools"]
-        GEN["3D Generation Tools"]
-        PCG["PCG Tools"]
-        MEMT["Memory Tools"]
+    subgraph CORE[This repository]
+        API[FastAPI + runtime APIs]
+        GRAPH[LangGraph nodes]
+        MCP[MCP runtime + tool registry]
+        BL[Blender-facing tools]
+        RT[Runtime-only Blender checks]
     end
 
-    subgraph EXEC["Blender Targets"]
-        HBL["Headless Blender Instances"]
-        LCL["Local Blender Addon Socket"]
+    subgraph EXT[Sibling tool-service stack]
+        TRE[TRELLIS2]
+        RET[Retrieval backends]
+        SAM[SAM reconstruction]
+        SS[SceneSmith compatibility APIs]
+        PCG[PCG services]
     end
 
-    subgraph SERVICES["External Services"]
-        TR["TRELLIS2"]
-        AR["AssetRetrieval3D API"]
-        PH["PolyHaven"]
-        SK["Sketchfab API"]
-        RDN["Hyper3D Rodin API"]
-        HY["Hunyuan3D API"]
-        INF["PCGIntegrator3D"]
-        PG["PostgreSQL"]
-    end
-
-    STRAT --> CORE
-    STRAT --> RET
-    STRAT --> GEN
-    STRAT --> PCG
-    STRAT --> MEMT
-
-    CORE --> HBL
-    CORE --> LCL
-    MEMT --> HBL
-    MEMT --> LCL
-
-    RET --> AR
-    RET --> PH
-    RET --> SK
-    GEN --> TR
-    GEN --> RDN
-    GEN --> HY
-    PCG --> INF
-
-    AR --> PG
-
-    AR --> HBL
-    AR --> LCL
-    TR --> HBL
-    RDN --> HBL
-    RDN --> LCL
-    HY --> HBL
-    INF --> HBL
-              </pre>
-            </div>
-            <p class="footnote">Tool categories mapped to concrete service dependencies and Blender execution targets.</p>
+    API --> GRAPH
+    GRAPH --> MCP
+    GRAPH --> RT
+    MCP --> BL
+    MCP --> TRE
+    MCP --> RET
+    MCP --> SAM
+    MCP --> SS
+    MCP --> PCG
+                </pre>
+              </div>
+            </article>
           </div>
         </div>
       </section>
 
-      <section class="section">
+      <section class="section" id="workflow">
         <div class="container">
-          <div class="section-header scroll-animate">
-            <span class="section-tag">Tooling</span>
-            <h2 class="section-title">Supported Tools</h2>
+          <div class="section-head reveal">
+            <div>
+              <div class="section-kicker">Workflow</div>
+              <h2 class="section-title">How a request turns into a finished scene</h2>
+            </div>
+            <p class="section-desc">
+              Each request is initialized, routed into the right execution mode, verified with fresh evidence, and driven
+              toward completion through evaluator-controlled loops.
+            </p>
           </div>
-          <div class="card scroll-animate">
-            <table>
-              <thead>
-                <tr>
-                  <th>Category</th>
-                  <th>Concrete Implementations</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Scene Inspection and Control</td>
-                  <td>
-                    <code>get_scene_info</code>, <code>get_object_info</code>, <code>get_viewport_screenshot</code>,
-                    <code>execute_blender_code</code>, <code>import_glb_model</code>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Camera and Rendering</td>
-                  <td>
-                    <code>render_from_objects</code>, <code>render_from_camera</code>, <code>camera_observe</code>,
-                    <code>camera_act</code>, <code>camera_set_pose</code>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Session Persistence</td>
-                  <td><code>undo_last_snapshot</code>, <code>get_session_persistence_status</code></td>
-                </tr>
-                <tr>
-                  <td>Asset Retrieval</td>
-                  <td>
-                    <code>search_polyhaven_assets</code>, <code>download_polyhaven_asset</code>, <code>set_texture</code>,
-                    <code>search_3d_assets_by_text</code>, <code>import_retrieved_asset</code>,
-                    <code>search_sketchfab_models</code>, <code>get_sketchfab_model_preview</code>,
-                    <code>download_sketchfab_model</code>
-                  </td>
-                </tr>
-                <tr>
-                  <td>3D Generation</td>
-                  <td>
-                    <code>generate_trellis2_model</code>, <code>generate_hyper3d_model_via_text</code>,
-                    <code>generate_hyper3d_model_via_images</code>, <code>poll_rodin_job_status</code>,
-                    <code>import_generated_asset</code>, <code>generate_hunyuan3d_model</code>
-                  </td>
-                </tr>
-                <tr>
-                  <td>PCG</td>
-                  <td><code>get_infinigen_available_assets</code>, <code>generate_infinigen_assets</code></td>
-                </tr>
-              </tbody>
-            </table>
+
+          <div class="workflow-grid reveal">
+            <article class="diagram-card">
+              <div class="diagram-head">
+                <h3>Request intake and graph setup</h3>
+                <div class="diagram-head-actions">
+                  <span>Per-thread graph reuse, rebuild, and request-state injection</span>
+                  <button class="diagram-expand" type="button">Full Screen</button>
+                </div>
+              </div>
+              <div class="diagram-body">
+                <pre class="mermaid workflow-wide">
+flowchart LR
+    A["Client / Web / CLI"] --> B["chat or chat-stream request"]
+    B --> C["claim_or_proxy_request"]
+    C --> D["resolve_thread_vlm_for_chat"]
+    D --> E["get_agent(thread_id)"]
+    E --> F{"Graph exists and VLM matches?"}
+    F -->|No| G["create_agent_graph"]
+    G --> H["get_blender_tools + bind_tools"]
+    H --> I["build_agent_state_graph + compile"]
+    F -->|Yes| J["Reuse graph"]
+    I --> J
+    B --> K["Build initial request state"]
+    K --> L["messages + images + topology + fast_mode"]
+    J --> M["agent.ainvoke / agent.astream"]
+    L --> M
+                </pre>
+              </div>
+            </article>
+
+            <article class="workflow-note section-panel">
+              <h3>Initialization chain</h3>
+              <ul class="mini-list">
+                <li><strong>`initialize_request`</strong> resolves workflow topology, memory profile, counters, and `fast_mode`.</li>
+                <li><strong>`sync_reference_catalog`</strong> refreshes the compact thread-level image catalog from persisted assets.</li>
+                <li><strong>`prepare_reference_context`</strong> computes the active image subset for this turn instead of replaying all history.</li>
+                <li><strong>`router`</strong> selects direct mode or plan mode, with `fast_mode=true` forcing direct execution.</li>
+                <li><strong>`plan_node`</strong> only runs when planning is needed and seeds append-only todo history.</li>
+              </ul>
+            </article>
+
+            <article class="diagram-card">
+              <div class="diagram-head">
+                <h3>Default execution loop</h3>
+                <div class="diagram-head-actions">
+                  <span>Tool execution, observation, verification, and finalization</span>
+                  <button class="diagram-expand" type="button">Full Screen</button>
+                </div>
+              </div>
+              <div class="diagram-body">
+                <pre class="mermaid workflow-wide">
+flowchart LR
+    A["router / plan_node"] --> B["agent"]
+    B --> C["turn_dispatch"]
+    C --> D{"assistant_turn_kind"}
+    D -->|has_calls| E["tools"]
+    E --> F["update_memory"]
+    F --> G["scene_observe"]
+    G --> H["verify"]
+    H --> I["evaluator"]
+    D -->|no_calls| I
+    I -->|continue| B
+    I -->|finalize| J["finalize"]
+    I -->|pure_qa| K["END"]
+    J --> K
+                </pre>
+              </div>
+            </article>
+
+            <article class="workflow-note section-panel">
+              <h3>Current control rules</h3>
+              <ul class="mini-list">
+                <li>The evaluator owns todo state transitions and convergence for both single-agent and dual-agent topologies.</li>
+                <li>`verify` can merge VLM-based judgment with an internal Blender penetration check when enabled.</li>
+                <li>`fast_mode` skips the normal observe-and-verify cycle for latency-sensitive requests.</li>
+                <li>Streaming hides internal node chatter such as router, planner, verify, and evaluator tokens from the user-facing SSE stream.</li>
+              </ul>
+            </article>
           </div>
         </div>
       </section>
 
-      <div class="spacer"></div>
+      <section class="section" id="tools">
+        <div class="container">
+          <div class="section-head reveal">
+            <div>
+              <div class="section-kicker">Tools</div>
+              <h2 class="section-title">Supported tools and capabilities</h2>
+            </div>
+            <p class="section-desc">
+              The platform combines scene inspection, rendering, editing, retrieval, generation, reconstruction, and
+              runtime control in one coordinated tool layer.
+            </p>
+          </div>
+
+          <div class="tools-grid reveal">
+            <article class="tool-card">
+              <h3>Scene inspection and evidence</h3>
+              <p>
+                Observation tools provide the fresh evidence that the evaluator expects before a mutated scene can
+                finalize.
+              </p>
+              <div class="tool-chip-row">
+                <span class="chip">get_scene_info</span>
+                <span class="chip">get_object_info</span>
+                <span class="chip">observe_scene_global</span>
+                <span class="chip">get_viewport_screenshot</span>
+              </div>
+            </article>
+
+            <article class="tool-card">
+              <h3>Camera, render, and verification</h3>
+              <p>
+                Camera-oriented tools support both normal observation loops and verification-time evidence gathering.
+              </p>
+              <div class="tool-chip-row">
+                <span class="chip">camera_observe</span>
+                <span class="chip">camera_act</span>
+                <span class="chip">camera_set_pose</span>
+                <span class="chip">render_from_camera</span>
+                <span class="chip">render_from_objects</span>
+              </div>
+            </article>
+
+            <article class="tool-card">
+              <h3>Scene editing and runtime control</h3>
+              <p>
+                The runtime supports direct scene mutation, imported models, retries, rollback, and manual object edits.
+              </p>
+              <div class="tool-chip-row">
+                <span class="chip">execute_blender_code</span>
+                <span class="chip">import_glb_model</span>
+                <span class="chip">undo_last_snapshot</span>
+                <span class="chip">@ object refs</span>
+                <span class="chip">primitive add</span>
+                <span class="chip">transform / delete</span>
+              </div>
+            </article>
+
+            <article class="tool-card">
+              <h3>Retrieval backends</h3>
+              <p>
+                Retrieval tools can search, preview, and import scene assets or materials through external service
+                adapters.
+              </p>
+              <div class="tool-chip-row">
+                <span class="chip">HSSD retrieval</span>
+                <span class="chip">AmbientCG materials</span>
+                <span class="chip">SceneSmith APIs</span>
+                <span class="chip">PolyHaven</span>
+                <span class="chip">Sketchfab</span>
+              </div>
+            </article>
+
+            <article class="tool-card">
+              <h3>3D generation and reconstruction</h3>
+              <p>
+                The generation layer spans mesh synthesis, reconstruction, and imported generated assets.
+              </p>
+              <div class="tool-chip-row">
+                <span class="chip">TRELLIS2</span>
+                <span class="chip">Tripo3D</span>
+                <span class="chip">SAM3D</span>
+                <span class="chip">Hyper3D / Rodin</span>
+                <span class="chip">Hunyuan3D</span>
+              </div>
+            </article>
+
+            <article class="tool-card">
+              <h3>Planning, memory, and topology hints</h3>
+              <p>
+                Request-scoped knobs decide how much planning, memory carryover, and verification the runtime should use.
+              </p>
+              <div class="tool-chip-row">
+                <span class="chip">direct_mode</span>
+                <span class="chip">plan_mode</span>
+                <span class="chip">fast_mode</span>
+                <span class="chip">single_agent</span>
+                <span class="chip">dual_agent</span>
+                <span class="chip">image bindings</span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="changelog">
+        <div class="container">
+          <div class="section-head reveal">
+            <div>
+              <div class="section-kicker">Changelog</div>
+              <h2 class="section-title">Latest updates in v0.2.0</h2>
+            </div>
+            <p class="section-desc">
+              Highlights across runtime behavior, model support, editing controls, tool integrations, and frontend experience.
+            </p>
+          </div>
+
+          <div class="changelog-grid reveal">
+            <article class="changelog-card">
+              <div class="changelog-meta">v0.2.0 · 2026-04-12</div>
+              <h3>Agent runtime and execution policy</h3>
+              <ul class="mini-list">
+                <li>Introduced routing and budgeting logic to decide when planning and verification are actually needed.</li>
+                <li>Improved image memory and automatic reference reuse across the workflow.</li>
+                <li>Added both single-agent and dual-agent topologies, with dual-agent still under active debugging.</li>
+              </ul>
+            </article>
+
+            <article class="changelog-card">
+              <div class="changelog-meta">Models and observability</div>
+              <h3>Provider support is broader</h3>
+              <ul class="mini-list">
+                <li>Added Qwen support alongside Gemini as the main cost-performance model options.</li>
+                <li>Added end-to-end token usage display across the full workflow.</li>
+              </ul>
+            </article>
+
+            <article class="changelog-card">
+              <div class="changelog-meta">Editing and interaction</div>
+              <h3>Scene control is more direct</h3>
+              <ul class="mini-list">
+                <li>Manual edits for vibe-generated objects now include transforms and deletion.</li>
+                <li>Users can add basic primitives and keep those edits synchronized back to Blender.</li>
+                <li>Object-specific edits can now be targeted via <code>@</code> references.</li>
+              </ul>
+            </article>
+
+            <article class="changelog-card">
+              <div class="changelog-meta">Tools and frontend</div>
+              <h3>Tooling and UI both moved forward</h3>
+              <ul class="mini-list">
+                <li>Added SAM3D, Tripo3D, HSSD retrieval, and AmbientCG material retrieval.</li>
+                <li>Improved code-execution robustness with validation and rollback.</li>
+                <li>Upgraded the frontend chat, lighting and rendering presentation, and separated scene persistence from runtime persistence.</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="container">
+          Vibe3DScene is a vision-aware 3D scene runtime for web, CLI, and Blender-native creation workflows.
+        </div>
+      </footer>
     </main>
 
     <script type="module">
@@ -788,35 +1471,75 @@ flowchart TB
       mermaid.initialize({
         startOnLoad: true,
         theme: "base",
+        securityLevel: "loose",
         themeVariables: {
-          primaryColor: "#edf4fb",
-          primaryBorderColor: "#9ab6d3",
-          primaryTextColor: "#111827",
-          secondaryColor: "#f8fafc",
-          tertiaryColor: "#eef2f7",
-          lineColor: "#334155",
-          fontFamily: "Inter, sans-serif",
+          background: "#08101b",
+          primaryColor: "#12233d",
+          primaryBorderColor: "#4aaede",
+          primaryTextColor: "#edf4ff",
+          secondaryColor: "#0d1a2f",
+          secondaryBorderColor: "#4aaede",
+          tertiaryColor: "#14284a",
+          tertiaryBorderColor: "#6ccdf0",
+          lineColor: "#79d8f5",
+          textColor: "#edf4ff",
+          fontFamily: "Manrope, sans-serif",
         },
         flowchart: {
-          curve: "bumpX",
-          nodeSpacing: 38,
-          rankSpacing: 42,
+          curve: "basis",
+          nodeSpacing: 42,
+          rankSpacing: 50,
+          padding: 18,
         },
       });
 
-      const observer = new IntersectionObserver(
+      const revealObserver = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               entry.target.classList.add("in-view");
-              observer.unobserve(entry.target);
+              revealObserver.unobserve(entry.target);
             }
           });
         },
-        { threshold: 0.12 }
+        { threshold: 0.14 }
       );
 
-      document.querySelectorAll(".scroll-animate").forEach((el) => observer.observe(el));
+      document.querySelectorAll(".reveal").forEach((element) => revealObserver.observe(element));
+
+      const sections = Array.from(document.querySelectorAll("main section[id]"));
+      const navLinks = Array.from(document.querySelectorAll(".nav a"));
+
+      const setActiveLink = () => {
+        const offset = window.scrollY + 140;
+        let currentId = sections[0]?.id;
+
+        sections.forEach((section) => {
+          if (section.offsetTop <= offset) currentId = section.id;
+        });
+
+        navLinks.forEach((link) => {
+          link.classList.toggle("active", link.getAttribute("href") === `#${currentId}`);
+        });
+      };
+
+      window.addEventListener("scroll", setActiveLink, { passive: true });
+      window.addEventListener("load", setActiveLink);
+      setActiveLink();
+
+      document.querySelectorAll(".diagram-expand").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const card = button.closest(".diagram-card");
+          if (!card) return;
+
+          if (document.fullscreenElement === card) {
+            await document.exitFullscreen();
+            return;
+          }
+
+          await card.requestFullscreen();
+        });
+      });
     </script>
   </body>
 </html>
